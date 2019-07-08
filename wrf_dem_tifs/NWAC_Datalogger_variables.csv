@@ -1,0 +1,469 @@
+Datalogger_Name,Column Header,.dat file Input_column for Portal (includes logger ID),.dat file Input_column for Portal (skips logger ID)
+Alpental Base,Year,2,1
+Alpental Base,Day,3,2
+Alpental Base,Time,4,3
+Alpental Base,Battery Voltage,5,4
+Alpental Base,Temperature,6,5
+Alpental Base,Relative Humidity,7,6
+Alpental Base,Precipitation,8,7
+Alpental Base,Snow Depth,9,8
+Alpental Base,24 hour snowfall,10,9
+Alpental Mid-Mountain,Year,2,1
+Alpental Mid-Mountain,Day,3,2
+Alpental Mid-Mountain,Time,4,3
+Alpental Mid-Mountain,Battery Voltage,5,4
+Alpental Mid-Mountain,Temperature,9,8
+Alpental Mid-Mountain,Relative Humidity,10,9
+Alpental Mid-Mountain,24 hour snowfall,11,10
+Alpental Mid-Mountain,Snow Depth,12,11
+Alpental Summit,Year,2,1
+Alpental Summit,Day,3,2
+Alpental Summit,Time,4,3
+Alpental Summit,Battery Voltage,5,4
+Alpental Summit,Temperature,6,5
+Alpental Summit,Relative Humidity,7,6
+Alpental Summit,Wind Speed Minimum,8,7
+Alpental Summit,Wind Speed Average,9,8
+Alpental Summit,Wind Speed Maximum,10,9
+Alpental Summit,Wind Direction,12,11
+Alpental Summit,Intermittent Snow,13,12
+Berne Snow Camp,Year,2,1
+Berne Snow Camp,Day,3,2
+Berne Snow Camp,Time,4,3
+Berne Snow Camp,Battery Voltage,5,4
+Berne Snow Camp,Temperature,6,5
+Berne Snow Camp,Relative Humidity,7,6
+Berne Snow Camp,Precipitation,8,7
+Berne Snow Camp,Snow Depth,9,8
+Berne Snow Camp,24 hour snowfall,10,9
+Berne Snow Camp,Barometric Pressure,11,10
+Blewett Pass,Year,2,1
+Blewett Pass,Day,3,2
+Blewett Pass,Time,4,3
+Blewett Pass,Battery Voltage,5,4
+Blewett Pass,Temperature,6,5
+Blewett Pass,Relative Humidity,7,6
+Blewett Pass,Precipitation,8,7
+Blewett Pass,24 hour snowfall,9,8
+Blewett Pass,Snow Depth,10,9
+Blewett Pass,Equipment Temperature,11,10
+Blewett Pass,Barometric Pressure,12,11
+Camp Muir,Year,2,1
+Camp Muir,Day,3,2
+Camp Muir,Time,4,3
+Camp Muir,Battery Voltage,5,4
+Camp Muir,Temperature,6,5
+Camp Muir,Relative Humidity,7,6
+Camp Muir,Wind Speed Minimum,8,7
+Camp Muir,Wind Speed Average,9,8
+Camp Muir,Wind Speed Maximum,10,9
+Camp Muir,Wind Direction,12,11
+Camp Muir,Solar Pyranometer,13,12
+Camp Muir,Net Radiometer,14,13
+Chinook Pass Base,Year,2,1
+Chinook Pass Base,Day,3,2
+Chinook Pass Base,Time,4,3
+Chinook Pass Base,Battery Voltage,5,4
+Chinook Pass Base,Temperature,6,5
+Chinook Pass Base,Relative Humidity,7,6
+Chinook Pass Base,Equipment Temperature,8,7
+Chinook Pass Base,Precipitation,9,8
+Chinook Pass Base,Snow Depth,10,9
+Chinook Pass Summit,Year,2,1
+Chinook Pass Summit,Day,3,2
+Chinook Pass Summit,Time,4,3
+Chinook Pass Summit,Battery Voltage,5,4
+Chinook Pass Summit,Temperature,8,7
+Chinook Pass Summit,Relative Humidity,9,8
+Chinook Pass Summit,Wind Speed Minimum,10,9
+Chinook Pass Summit,Wind Speed Average,11,10
+Chinook Pass Summit,Wind Speed Maximum,12,11
+Chinook Pass Summit,Wind Direction,14,13
+Crystal Base,Year,2,1
+Crystal Base,Day,3,2
+Crystal Base,Time,4,3
+Crystal Base,Battery Voltage,5,4
+Crystal Base,Temperature,6,5
+Crystal Base,Relative Humidity,7,6
+Crystal Base,Precipitation,8,7
+Crystal Base,24 hour snowfall,9,8
+Crystal Base,Snow Depth,10,9
+Crystal Green Valley,Year,2,1
+Crystal Green Valley,Day,3,2
+Crystal Green Valley,Time,4,3
+Crystal Green Valley,Battery Voltage,5,4
+Crystal Green Valley,Temperature,6,5
+Crystal Green Valley,24 hour snowfall,7,6
+Crystal Green Valley,Snow Depth,8,7
+Crystal Summit,Year,2,1
+Crystal Summit,Day,3,2
+Crystal Summit,Time,4,3
+Crystal Summit,Battery Voltage,5,4
+Crystal Summit,Temperature,7,6
+Crystal Summit,Relative Humidity,8,7
+Crystal Summit,Wind Speed Minimum,9,8
+Crystal Summit,Wind Speed Average,10,9
+Crystal Summit,Wind Speed Maximum,11,10
+Crystal Summit,Wind Direction,12,11
+Dirty Face Summit,Year,2,1
+Dirty Face Summit,Day,3,2
+Dirty Face Summit,Time,4,3
+Dirty Face Summit,Battery Voltage,5,4
+Dirty Face Summit,Temperature,6,5
+Dirty Face Summit,Relative Humidity,7,6
+Dirty Face Summit,Wind Speed Minimum,8,7
+Dirty Face Summit,Wind Speed Average,9,8
+Dirty Face Summit,Wind Speed Maximum,10,9
+Dirty Face Summit,Wind Direction,12,11
+Hurricane Ridge,Year,2,1
+Hurricane Ridge,Day,3,2
+Hurricane Ridge,Time,4,3
+Hurricane Ridge,Battery Voltage,5,4
+Hurricane Ridge,Temperature,6,5
+Hurricane Ridge,Relative Humidity,7,6
+Hurricane Ridge,Wind Speed Minimum,8,7
+Hurricane Ridge,Wind Speed Average,9,8
+Hurricane Ridge,Wind Speed Maximum,10,9
+Hurricane Ridge,Wind Direction,12,11
+Hurricane Ridge,Precipitation,13,12
+Hurricane Ridge,Snow Depth,14,13
+Lake Wenatchee,Year,2,1
+Lake Wenatchee,Day,3,2
+Lake Wenatchee,Time,4,3
+Lake Wenatchee,Battery Voltage,5,4
+Lake Wenatchee,Temperature,6,5
+Lake Wenatchee,Relative Humidity,7,6
+Lake Wenatchee,Wind Speed Minimum,8,7
+Lake Wenatchee,Wind Speed Average,9,8
+Lake Wenatchee,Wind Speed Maximum,10,9
+Lake Wenatchee,Wind Direction,12,11
+Lake Wenatchee,Precipitation,13,12
+Lake Wenatchee,Snow Depth,14,13
+Lake Wenatchee,24 hour snowfall,15,14
+Leavenworth,Year,2,1
+Leavenworth,Day,3,2
+Leavenworth,Time,4,3
+Leavenworth,Battery Voltage,5,4
+Leavenworth,Temperature,6,5
+Leavenworth,Relative Humidity,7,6
+Leavenworth,Precipitation,8,7
+Leavenworth,Snow Depth,9,8
+Leavenworth,24 hour snowfall,10,9
+Leavenworth,Barometric Pressure,11,10
+Mazama,Year,2,1
+Mazama,Day,3,2
+Mazama,Time,4,3
+Mazama,Battery Voltage,5,4
+Mazama,Temperature,6,5
+Mazama,Relative Humidity,7,6
+Mazama,Solar Pyranometer,8,7
+Mazama,Wind Speed Minimum,9,8
+Mazama,Wind Speed Average,10,9
+Mazama,Wind Speed Maximum,11,10
+Mazama,Wind Direction,13,12
+Mazama,Precipitation,14,13
+Mazama,Snow Depth,15,14
+Mazama,24 hour snowfall,16,15
+Mission Ridge Base,Year,2,1
+Mission Ridge Base,Day,3,2
+Mission Ridge Base,Time,4,3
+Mission Ridge Base,Battery Voltage,5,4
+Mission Ridge Base,Temperature,6,5
+Mission Ridge Base,Relative Humidity,7,6
+Mission Ridge Base,Wind Speed Average,9,8
+Mission Ridge Base,Wind Direction,10,9
+Mission Ridge Base,Wind Speed Maximum,11,10
+Mission Ridge Mid-Mountain,Year,2,1
+Mission Ridge Mid-Mountain,Day,3,2
+Mission Ridge Mid-Mountain,Time,4,3
+Mission Ridge Mid-Mountain,Battery Voltage,5,4
+Mission Ridge Mid-Mountain,Temperature,6,5
+Mission Ridge Mid-Mountain,Relative Humidity,7,6
+Mission Ridge Mid-Mountain,Wind Speed Average,9,8
+Mission Ridge Mid-Mountain,Wind Direction,10,9
+Mission Ridge Mid-Mountain,Wind Speed Maximum,11,10
+Mission Ridge Mid-Mountain,24 hour snowfall,12,11
+Mission Ridge Mid-Mountain,Snow Depth,13,12
+Mission Ridge Mid-Mountain,Precipitation,14,13
+Mission Ridge Summit,Year,2,1
+Mission Ridge Summit,Day,3,2
+Mission Ridge Summit,Time,4,3
+Mission Ridge Summit,Battery Voltage,5,4
+Mission Ridge Summit,Temperature,6,5
+Mission Ridge Summit,Relative Humidity,7,6
+Mission Ridge Summit,Wind Speed Average,9,8
+Mission Ridge Summit,Wind Direction,10,9
+Mission Ridge Summit,Wind Speed Maximum,11,10
+Mt Baker - Heather Meadows,Year,2,1
+Mt Baker - Heather Meadows,Day,3,2
+Mt Baker - Heather Meadows,Time,4,3
+Mt Baker - Heather Meadows,Battery Voltage,5,4
+Mt Baker - Heather Meadows,Temperature,6,5
+Mt Baker - Heather Meadows,Relative Humidity,7,6
+Mt Baker - Heather Meadows,Precipitation,8,7
+Mt Baker - Heather Meadows,24 hour snowfall,9,8
+Mt Baker - Heather Meadows,Snow Depth,10,9
+Mt Baker - Pan Dome,Year,2,1
+Mt Baker - Pan Dome,Day,3,2
+Mt Baker - Pan Dome,Time,4,3
+Mt Baker - Pan Dome,Battery Voltage,5,4
+Mt Baker - Pan Dome,Temperature,7,6
+Mt Baker - Pan Dome,Relative Humidity,8,7
+Mt Baker - Pan Dome,Wind Speed Minimum,9,8
+Mt Baker - Pan Dome,Wind Speed Average,10,9
+Mt Baker - Pan Dome,Wind Speed Maximum,11,10
+Mt Baker - Pan Dome,Wind Direction,12,11
+Mt Hood Meadows Base,Year,2,1
+Mt Hood Meadows Base,Day,3,2
+Mt Hood Meadows Base,Time,4,3
+Mt Hood Meadows Base,Battery Voltage,5,4
+Mt Hood Meadows Base,Temperature,6,5
+Mt Hood Meadows Base,Relative Humidity,7,6
+Mt Hood Meadows Base,Precipitation,8,7
+Mt Hood Meadows Base,24 hour snowfall,9,8
+Mt Hood Meadows Base,Snow Depth,10,9
+Mt Hood Meadows Base,Barometric Pressure,11,10
+Mt Hood Meadows Blue,Year,2,1
+Mt Hood Meadows Blue,Day,3,2
+Mt Hood Meadows Blue,Time,4,3
+Mt Hood Meadows Blue,Battery Voltage,5,4
+Mt Hood Meadows Blue,Temperature,6,5
+Mt Hood Meadows Blue,Relative Humidity,7,6
+Mt Hood Meadows Blue,Wind Speed Minimum,8,7
+Mt Hood Meadows Blue,Wind Speed Average,9,8
+Mt Hood Meadows Blue,Wind Speed Maximum,10,9
+Mt Hood Meadows Blue,Wind Direction,13,12
+Mt Hood Meadows Cascade Express,Year,2,1
+Mt Hood Meadows Cascade Express,Day,3,2
+Mt Hood Meadows Cascade Express,Time,4,3
+Mt Hood Meadows Cascade Express,Battery Voltage,5,4
+Mt Hood Meadows Cascade Express,Temperature,6,5
+Mt Hood Meadows Cascade Express,Relative Humidity,7,6
+Mt Hood Meadows Cascade Express,Wind Speed Minimum,8,7
+Mt Hood Meadows Cascade Express,Wind Speed Average,9,8
+Mt Hood Meadows Cascade Express,Wind Speed Maximum,10,9
+Mt Hood Meadows Cascade Express,Wind Direction,13,12
+Mt St Helens - Coldwater ,Year,2,1
+Mt St Helens - Coldwater ,Day,3,2
+Mt St Helens - Coldwater ,Time,4,3
+Mt St Helens - Coldwater ,Battery Voltage,5,4
+Mt St Helens - Coldwater ,Temperature,6,5
+Mt St Helens - Coldwater ,Relative Humidity,7,6
+Mt St Helens - Coldwater ,Wind Speed Minimum,8,7
+Mt St Helens - Coldwater ,Wind Speed Average,9,8
+Mt St Helens - Coldwater ,Wind Speed Maximum,10,9
+Mt St Helens - Coldwater ,Wind Direction,12,11
+Mt St Helens - Coldwater ,Precipitation,13,12
+Mt Washington,Year,2,1
+Mt Washington,Day,3,2
+Mt Washington,Time,4,3
+Mt Washington,Battery Voltage,6,5
+Mt Washington,Temperature,7,6
+Mt Washington,Solar Pyranometer,8,7
+Mt Washington,Wind Direction,9,8
+Mt Washington,Relative Humidity,12,11
+Paradise,Year,2,1
+Paradise,Day,3,2
+Paradise,Time,4,3
+Paradise,Battery Voltage,5,4
+Paradise,Temperature,6,5
+Paradise,Relative Humidity,7,6
+Paradise,Precipitation,8,7
+Paradise,24 hour snowfall,9,8
+Paradise,Snow Depth,10,9
+Paradise Wind,Year,2,1
+Paradise Wind,Day,3,2
+Paradise Wind,Time,4,3
+Paradise Wind,Battery Voltage,5,4
+Paradise Wind,Wind Speed Minimum,6,5
+Paradise Wind,Wind Speed Average,7,6
+Paradise Wind,Wind Speed Maximum,8,7
+Paradise Wind,Wind Direction,10,9
+Paradise Wind,Solar Pyranometer,11,10
+Ski Bowl Base,Year,2,1
+Ski Bowl Base,Day,3,2
+Ski Bowl Base,Time,4,3
+Ski Bowl Base,Battery Voltage,5,4
+Ski Bowl Base,Temperature,6,5
+Ski Bowl Base,Relative Humidity,7,6
+Ski Bowl Base,Precipitation,8,7
+Ski Bowl Summit,Year,2,1
+Ski Bowl Summit,Day,3,2
+Ski Bowl Summit,Time,4,3
+Ski Bowl Summit,Battery Voltage,5,4
+Ski Bowl Summit,Temperature,6,5
+Ski Bowl Summit,Relative Humidity,7,6
+Ski Bowl Summit,Wind Speed Minimum,8,7
+Ski Bowl Summit,Wind Speed Average,9,8
+Ski Bowl Summit,Wind Speed Maximum,10,9
+Ski Bowl Summit,Wind Direction,12,11
+Ski Bowl Summit,Snow Depth,13,12
+Snoqualmie Pass,Year,2,1
+Snoqualmie Pass,Day,3,2
+Snoqualmie Pass,Time,4,3
+Snoqualmie Pass,Battery Voltage,6,5
+Snoqualmie Pass,Temperature,7,6
+Snoqualmie Pass,Relative Humidity,8,7
+Snoqualmie Pass,Precipitation,9,8
+Snoqualmie Pass,Barometric Pressure,10,9
+Snoqualmie Pass,Solar Pyranometer,12,11
+Snoqualmie Pass,24 hour snowfall,14,13
+Snoqualmie Pass,Snow Depth,15,14
+Snoqualmie Pass - Dodge Ridge,Year,2,1
+Snoqualmie Pass - Dodge Ridge,Day,3,2
+Snoqualmie Pass - Dodge Ridge,Time,4,3
+Snoqualmie Pass - Dodge Ridge,Battery Voltage,6,5
+Snoqualmie Pass - Dodge Ridge,Temperature,7,6
+Snoqualmie Pass - Dodge Ridge,Wind Speed Minimum,8,7
+Snoqualmie Pass - Dodge Ridge,Wind Speed Maximum,9,8
+Snoqualmie Pass - Dodge Ridge,Wind Speed Average,10,9
+Snoqualmie Pass - Dodge Ridge,Wind Direction,11,10
+Snoqualmie Pass - Dodge Ridge,Relative Humidity,15,14
+Snoqualmie Pass - East Shed,Year,2,1
+Snoqualmie Pass - East Shed,Day,3,2
+Snoqualmie Pass - East Shed,Time,4,3
+Snoqualmie Pass - East Shed,Battery Voltage,7,6
+Snoqualmie Pass - East Shed,Temperature,9,8
+Snoqualmie Pass - East Shed,Solar Pyranometer,11,10
+Snoqualmie Pass - East Shed,Intermittent Snow,12,11
+Snoqualmie Pass - East Shed,Relative Humidity,13,12
+Stevens Pass - Brooks Wind,Year,2,1
+Stevens Pass - Brooks Wind,Day,3,2
+Stevens Pass - Brooks Wind,Time,4,3
+Stevens Pass - Brooks Wind,Battery Voltage,5,4
+Stevens Pass - Brooks Wind,Temperature,6,5
+Stevens Pass - Brooks Wind,Relative Humidity,7,6
+Stevens Pass - Brooks Wind,Wind Speed Minimum,8,7
+Stevens Pass - Brooks Wind,Wind Speed Average,9,8
+Stevens Pass - Brooks Wind,Wind Speed Maximum,10,9
+Stevens Pass - Brooks Wind,Wind Direction,12,11
+Stevens Pass - Brooks,Year,2,1
+Stevens Pass - Brooks,Day,3,2
+Stevens Pass - Brooks,Time,4,3
+Stevens Pass - Brooks,Battery Voltage,5,4
+Stevens Pass - Brooks,Precipitation,7,6
+Stevens Pass - Brooks,24 hour snowfall,8,7
+Stevens Pass - Brooks,Snow Depth,9,8
+Stevens Pass - Grace Lakes,Wind Speed Minimum,8,7
+Stevens Pass - Grace Lakes,Wind Speed Average,9,8
+Stevens Pass - Grace Lakes,Wind Speed Maximum,10,9
+Stevens Pass - Grace Lakes,Wind Direction,12,11
+Stevens Pass - Grace Lakes,Snow Depth,14,13
+Stevens Pass - Grace Lakes,Intermittent Snow,15,14
+Stevens Pass - Schmidt Haus,Year,2,1
+Stevens Pass - Schmidt Haus,Day,3,2
+Stevens Pass - Schmidt Haus,Time,4,3
+Stevens Pass - Schmidt Haus,Battery Voltage,5,4
+Stevens Pass - Schmidt Haus,Temperature,6,5
+Stevens Pass - Schmidt Haus,Relative Humidity,7,6
+Stevens Pass - Schmidt Haus,Precipitation,8,7
+Stevens Pass - Schmidt Haus,Snow Depth,9,8
+Stevens Pass - Schmidt Haus,24 hour snowfall,10,9
+Stevens Pass - Schmidt Haus,Barometric Pressure,11,10
+Stevens Pass - Skyline,Year,2,1
+Stevens Pass - Skyline,Day,3,2
+Stevens Pass - Skyline,Time,4,3
+Stevens Pass - Skyline,Battery Voltage,5,4
+Stevens Pass - Skyline,Temperature,6,5
+Stevens Pass - Skyline,Snow Depth,8,7
+Stevens Pass - Tye Mill,Year,2,1
+Stevens Pass - Tye Mill,Day,3,2
+Stevens Pass - Tye Mill,Time,4,3
+Stevens Pass - Tye Mill,Battery Voltage,5,4
+Stevens Pass - Tye Mill,Temperature,6,5
+Stevens Pass - Tye Mill,Wind Speed Minimum,7,6
+Stevens Pass - Tye Mill,Wind Speed Average,8,7
+Stevens Pass - Tye Mill,Wind Speed Maximum,9,8
+Stevens Pass - Tye Mill,Wind Direction,11,10
+Sunrise Base,Year,2,1
+Sunrise Base,Day,3,2
+Sunrise Base,Time,4,3
+Sunrise Base,Battery Voltage,5,4
+Sunrise Base,Temperature,6,5
+Sunrise Base,Relative Humidity,7,6
+Sunrise Base,Snow Depth,8,7
+Sunrise Upper,Year,2,1
+Sunrise Upper,Day,3,2
+Sunrise Upper,Time,4,3
+Sunrise Upper,Battery Voltage,5,4
+Sunrise Upper,Temperature,6,5
+Sunrise Upper,Relative Humidity,7,6
+Sunrise Upper,Wind Speed Minimum,8,7
+Sunrise Upper,Wind Speed Average,9,8
+Sunrise Upper,Wind Speed Maximum,10,9
+Sunrise Upper,Wind Direction,12,11
+Sunrise Upper,Solar Pyranometer,13,12
+Timberline Lodge,Year,2,1
+Timberline Lodge,Day,3,2
+Timberline Lodge,Time,4,3
+Timberline Lodge,Battery Voltage,5,4
+Timberline Lodge,Temperature,6,5
+Timberline Lodge,Relative Humidity,7,6
+Timberline Lodge,Wind Speed Minimum,8,7
+Timberline Lodge,Wind Speed Average,9,8
+Timberline Lodge,Wind Speed Maximum,10,9
+Timberline Lodge,Wind Direction,12,11
+Timberline Lodge,Precipitation,13,12
+Timberline Lodge,24 hour snowfall,14,13
+Timberline Lodge,Snow Depth,15,14
+Timberline Magic Mile,Year,2,1
+Timberline Magic Mile,Day,3,2
+Timberline Magic Mile,Time,4,3
+Timberline Magic Mile,Battery Voltage,5,4
+Timberline Magic Mile,Temperature,6,5
+Timberline Magic Mile,Relative Humidity,7,6
+Timberline Magic Mile,Wind Speed Minimum,8,7
+Timberline Magic Mile,Wind Speed Average,9,8
+Timberline Magic Mile,Wind Speed Maximum,10,9
+Timberline Magic Mile,Wind Direction,12,11
+Tumwater Mountain,Year,2,1
+Tumwater Mountain,Day,3,2
+Tumwater Mountain,Time,4,3
+Tumwater Mountain,Battery Voltage,5,4
+Tumwater Mountain,Temperature,6,5
+Tumwater Mountain,Wind Speed Minimum,9,8
+Tumwater Mountain,Wind Speed Average,10,9
+Tumwater Mountain,Wind Speed Maximum,11,10
+Tumwater Mountain,Wind Direction,13,12
+Tumwater Mountain,Snow Depth,16,15
+Washington Pass Base,Year,2,1
+Washington Pass Base,Day,3,2
+Washington Pass Base,Time,4,3
+Washington Pass Base,Battery Voltage,5,4
+Washington Pass Base,Temperature,6,5
+Washington Pass Base,Relative Humidity,7,6
+Washington Pass Base,Precipitation,8,7
+Washington Pass Base,Equipment Temperature,9,8
+Washington Pass Base,Snow Depth,10,9
+Washington Pass Upper,Year,2,1
+Washington Pass Upper,Day,3,2
+Washington Pass Upper,Time,4,3
+Washington Pass Upper,Battery Voltage,5,4
+Washington Pass Upper,Temperature,6,5
+Washington Pass Upper,Relative Humidity,7,6
+Washington Pass Upper,Wind Speed Minimum,8,7
+Washington Pass Upper,Wind Speed Average,9,8
+Washington Pass Upper,Wind Speed Maximum,10,9
+Washington Pass Upper,Wind Direction,12,11
+White Pass Base,Year,2,1
+White Pass Base,Day,3,2
+White Pass Base,Time,4,3
+White Pass Base,Battery Voltage,5,4
+White Pass Base,Temperature,6,5
+White Pass Base,Relative Humidity,7,6
+White Pass Pigtail Peak,Year,2,1
+White Pass Pigtail Peak,Day,3,2
+White Pass Pigtail Peak,Time,4,3
+White Pass Pigtail Peak,Battery Voltage,5,4
+White Pass Pigtail Peak,Wind Speed Minimum,7,6
+White Pass Pigtail Peak,Wind Speed Average,8,7
+White Pass Pigtail Peak,Wind Speed Maximum,9,8
+White Pass Pigtail Peak,Wind Direction,10,9
+White Pass Upper,Year,2,1
+White Pass Upper,Day,3,2
+White Pass Upper,Time,4,3
+White Pass Upper,Battery Voltage,5,4
+White Pass Upper,Temperature,6,5
+White Pass Upper,Relative Humidity,7,6
+White Pass Upper,Precipitation,8,7
+White Pass Upper,Snow Depth,9,8

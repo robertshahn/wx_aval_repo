@@ -16,6 +16,11 @@ from sklearn import metrics
 import os
 import os.path
 
+
+import configparser
+config = configparser.ConfigParser()
+config.read('config.ini')
+
 # pd.set_option('display.height', 1000)
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -32,7 +37,7 @@ def plotFigure(data_plot, file_name, order):
     plt.close()
 
 
-proj_dir = '/Users/robertshahn/Documents/python-projects/wx_aval_repo/BiasCorrection'
+proj_dir = config['DEFAULT']['PROJECT_DIR']
 
 data_file = os.path.join(proj_dir, 'BiasCorrectionData_new.csv')
 

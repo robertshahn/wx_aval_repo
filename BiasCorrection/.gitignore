@@ -1,2 +1,6 @@
+# Ignore files from OS and IDEs
+.idea
+.ipynb_checkpoints
+
 # Don't upload the real config file, only config-sample.ini.
 config.ini

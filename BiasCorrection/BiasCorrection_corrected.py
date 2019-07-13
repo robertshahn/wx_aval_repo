@@ -44,6 +44,8 @@ data_file = os.path.join(proj_dir, 'BiasCorrectionData_new.csv')
 date_rng = pd.date_range(start='12/11/2018', end='4/30/2019', freq='D')
 # date_rng = pd.date_range(start='11/25/2018', end='5/13/2019', freq='D')
 
+#TODO Make this a command line argument
+MAKE_PLOTS = False
 
 df = pd.read_csv(data_file)
 df.columns = df.columns.str.strip()
@@ -123,6 +125,10 @@ for name in names:
         a = open(proj_dir + '/' + name + '_precip.txt', 'w')
         a.write(str(df3))
         a.close()
+
+    # Skip plot generation if so specified.
+    if not MAKE_PLOTS:
+        continue
 
     fig = plt.figure(figsize=(16, 16))
     raw_bias.plot(figsize=(20, 10), fontsize=20, color="green")

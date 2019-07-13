@@ -47,6 +47,10 @@ date_rng = pd.date_range(start='12/11/2018', end='4/30/2019', freq='D')
 #TODO Make this a command line argument
 MAKE_PLOTS = False
 
+#TODO Make this a command line argument
+#TODO Check to make sure this exists
+OUTPUT_DIR = "outdir"
+
 df = pd.read_csv(data_file)
 df.columns = df.columns.str.strip()
 pd.options.display.float_format = '{:,.2f}'.format
@@ -122,7 +126,7 @@ for name in names:
         import copy
 
         #       df2 = copy.deepcopy(df.filter(regex=name))
-        a = open(proj_dir + '/' + name + '_precip.txt', 'w')
+        a = open(proj_dir + '/' + OUTPUT_DIR + '/' + name + '_precip.txt', 'w')
         a.write(str(df3))
         a.close()
 

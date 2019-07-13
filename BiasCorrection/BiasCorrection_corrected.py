@@ -1,48 +1,40 @@
 #!/usr/local/bin/python3
 
+# ---------------------------------------------------------------------------------------------------------------------
+# IMPORTS
+# ---------------------------------------------------------------------------------------------------------------------
+#TODO organize these
 import datetime
 from datetime import date
 import seaborn as sns
-
 import copy
-
 # from datetime import date_range
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 from sklearn import metrics
-
 import os
 import os.path
-
-
 import configparser
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CONFIGURATION and INITIALIZATION
+# ---------------------------------------------------------------------------------------------------------------------
+
+# Read in the config file
 config = configparser.ConfigParser()
 config.read('config.ini')
+PROJ_DIR = config['DEFAULT']['PROJECT_DIR']
 
+# pandas settings for outputting numerical data
+#TODO Robert, why are these set this way?  Does this make the output play nicely with Jupyter?
 # pd.set_option('display.height', 1000)
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
+# Close all previous plots
 plt.close("all")
-
-
-def plotFigure(data_plot, file_name, order):
-    fig = plt.figure(order, figsize=(9, 6))
-    ax = fig.add_subplot(111)
-    bp = ax.boxplot(data_plot)
-    fig.savefig(file_name, bbox_inches='tight')
-    plt.close()
-
-
-proj_dir = config['DEFAULT']['PROJECT_DIR']
-
-data_file = os.path.join(proj_dir, 'BiasCorrectionData_new.csv')
-
-date_rng = pd.date_range(start='12/11/2018', end='4/30/2019', freq='D')
-# date_rng = pd.date_range(start='11/25/2018', end='5/13/2019', freq='D')
 
 #TODO Make this a command line argument
 MAKE_PLOTS = False
@@ -51,7 +43,35 @@ MAKE_PLOTS = False
 #TODO Check to make sure this exists
 OUTPUT_DIR = "outdir"
 
-df = pd.read_csv(data_file)
+#TODO Make this a command line argument
+date_rng = pd.date_range(start='12/11/2018', end='4/30/2019', freq='D')
+# date_rng = pd.date_range(start='11/25/2018', end='5/13/2019', freq='D')
+
+# Read in the data
+DATA_FILE = os.path.join(PROJ_DIR, 'BiasCorrectionData_new.csv')
+
+#TODO Auto-detect this?
+COLUMNS = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2', \
+           'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
+NAMES = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
+# names = ['STV']
+
+# ---------------------------------------------------------------------------------------------------------------------
+# METHODS
+# ---------------------------------------------------------------------------------------------------------------------
+
+def plotFigure(data_plot, file_name, order):
+    fig = plt.figure(order, figsize=(9, 6))
+    ax = fig.add_subplot(111)
+    bp = ax.boxplot(data_plot)
+    fig.savefig(file_name, bbox_inches='tight')
+    plt.close()
+
+# ---------------------------------------------------------------------------------------------------------------------
+# SCRIPT BODY
+# ---------------------------------------------------------------------------------------------------------------------
+
+df = pd.read_csv(DATA_FILE)
 df.columns = df.columns.str.strip()
 pd.options.display.float_format = '{:,.2f}'.format
 # df.drop(['Unnamed: 0'], axis=1, inplace=True)
@@ -64,13 +84,10 @@ df = df.set_index('Date')
 
 # correction_factor = [(tau - 1)/tau]*yesterdays_factor + (1/tau)*(most_recent_fcst_pcp/most_recent_obs_pcp)
 
-columns = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2', \
-           'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
 # correction_factor = [(tau - 1)/tau]*yesterdays_factor + (1/tau)*(most_recent_fcst_pcp/most_recent_obs_pcp)
-names = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
-df.drop(columns, inplace=True, axis=1)
-# names = ['STV']
-for name in names:
+df.drop(COLUMNS, inplace=True, axis=1)
+
+for name in NAMES:
     tau = 30
     # cf.iloc[0] = 1
     # print(cf.head())
@@ -126,7 +143,7 @@ for name in names:
         import copy
 
         #       df2 = copy.deepcopy(df.filter(regex=name))
-        a = open(proj_dir + '/' + OUTPUT_DIR + '/' + name + '_precip.txt', 'w')
+        a = open(PROJ_DIR + '/' + OUTPUT_DIR + '/' + name + '_precip.txt', 'w')
         a.write(str(df3))
         a.close()
 
@@ -171,5 +188,5 @@ for name in names:
     plt.legend(fontsize=16)
     plt.title("STN = " + name + " FH12-36 Forecast Comparison: 1.33-km WRF and BC WRF Precip Bias", fontsize=20)
     plt.show()
-    fig.savefig(proj_dir + '/STN=' + name + '_WRF_vs_BCWRF.png', dpi=180)
+    fig.savefig(PROJ_DIR + '/STN=' + name + '_WRF_vs_BCWRF.png', dpi=180)
     plt.close()

@@ -32,6 +32,7 @@ PROJ_DIR = config['DEFAULT']['PROJECT_DIR']
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
+pd.options.display.float_format = '{:,.2f}'.format
 
 # Close all previous plots
 plt.close("all")
@@ -70,14 +71,14 @@ def plotFigure(data_plot, file_name, order):
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY
 # ---------------------------------------------------------------------------------------------------------------------
+#TODO Remove various commented out scratch code.
 
+# Read in the data file
 df = pd.read_csv(DATA_FILE)
 df.columns = df.columns.str.strip()
-pd.options.display.float_format = '{:,.2f}'.format
 # df.drop(['Unnamed: 0'], axis=1, inplace=True)
 df = df.iloc[16:157, :]
 # df['WRF Day'].shape
-
 # df.truncate(after=112)
 df['Date'] = date_rng
 df = df.set_index('Date')
@@ -117,6 +118,7 @@ for name in NAMES:
     fcst_drop = df2[name + '4']
     cf_drop = df2[name + '_CF']
     cf.iloc[0] = 1
+
     for i in range(len(df2) - 1):
         if (obs.iloc[i] <= 0.01 or np.isnan(obs.iloc[i]) == True or np.isnan(fcst.iloc[i]) == True):
             #        print("i = " + str(i))

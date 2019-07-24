@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------------------------------------------------------------------
-#TODO organize these
+# TODO organize these
 import datetime
 from datetime import date
 import seaborn as sns
@@ -27,7 +27,7 @@ config.read('config.ini')
 PROJ_DIR = config['DEFAULT']['PROJECT_DIR']
 
 # pandas settings for outputting numerical data
-#TODO Robert, why are these set this way?  Does this make the output play nicely with Jupyter?
+# TODO Robert, why are these set this way?  Does this make the output play nicely with Jupyter?
 # pd.set_option('display.height', 1000)
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -37,21 +37,24 @@ pd.options.display.float_format = '{:,.2f}'.format
 # Close all previous plots
 plt.close("all")
 
-#TODO Make this a command line argument
+# TODO Make this a command line argument
 MAKE_PLOTS = False
 
-#TODO Make this a command line argument
-#TODO Check to make sure this exists
-OUTPUT_DIR = "outdir"
+# TODO Make this a command line argument
+# Check to make sure the directory exists; if not, make it.
+OUTPUT_DIR = os.path.join(PROJ_DIR, 'outdir').replace('\'', '')
+if not os.path.exists(OUTPUT_DIR):
+    os.mkdir(OUTPUT_DIR)
 
-#TODO Make this a command line argument
+# TODO Make this a command line argument
 date_rng = pd.date_range(start='12/11/2018', end='4/30/2019', freq='D')
 # date_rng = pd.date_range(start='11/25/2018', end='5/13/2019', freq='D')
 
-# Read in the data
-DATA_FILE = os.path.join(PROJ_DIR, 'BiasCorrectionData_new.csv')
+# Get the path to the data file
+# TODO Make this a command line argument
+DATA_FILE = os.path.join(PROJ_DIR, 'BiasCorrectionData_new.csv').replace('\'', '')
 
-#TODO Auto-detect this?
+# TODO Auto-detect this?
 COLUMNS = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2', \
            'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
 NAMES = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
@@ -71,7 +74,7 @@ def plotFigure(data_plot, file_name, order):
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY
 # ---------------------------------------------------------------------------------------------------------------------
-#TODO Remove various commented out scratch code.
+# TODO Remove various commented out scratch code.
 
 # Read in the data file
 df = pd.read_csv(DATA_FILE)
@@ -83,16 +86,10 @@ df = df.iloc[16:157, :]
 df['Date'] = date_rng
 df = df.set_index('Date')
 
-# correction_factor = [(tau - 1)/tau]*yesterdays_factor + (1/tau)*(most_recent_fcst_pcp/most_recent_obs_pcp)
-
-# correction_factor = [(tau - 1)/tau]*yesterdays_factor + (1/tau)*(most_recent_fcst_pcp/most_recent_obs_pcp)
 df.drop(COLUMNS, inplace=True, axis=1)
 
 for name in NAMES:
     tau = 30
-    # cf.iloc[0] = 1
-    # print(cf.head())
-    #    unchanged = True
     df2 = copy.deepcopy(df.filter(regex=name))
     df2[name + '_CF'] = 0
     df2[name + '_BC'] = 0
@@ -121,15 +118,8 @@ for name in NAMES:
 
     for i in range(len(df2) - 1):
         if (obs.iloc[i] <= 0.01 or np.isnan(obs.iloc[i]) == True or np.isnan(fcst.iloc[i]) == True):
-            #        print("i = " + str(i))
             cf.iloc[i + 1] = cf.iloc[i]
-        #             print("cf IS " + str(cf.iloc[i]))
-        #             print("cf+1 IS = " + str(cf.iloc[i+1]))
         else:
-            #        unchanged = False
-            #       print("j = " + str(i))
-            #         print(round(fcst.iloc[i],3))
-            #        cf.iloc[i+1] = ((tau - 1)/tau)*cf.iloc[i] + (1/tau)*(fcst.iloc[i]/obs.iloc[i])
             cf.iloc[i + 1] = ((tau - 1) / tau) * cf.iloc[i] + (1 / tau) * (fcst.iloc[i] / obs.iloc[i])
             # code to avoid large jumps in cf
             if (abs((cf.iloc[i + 1] / cf.iloc[i])) > 1.5 and (fcst.iloc[i] + obs.iloc[i]) < 1):
@@ -142,10 +132,8 @@ for name in NAMES:
         print("date is " + str(df.index.date[i]) + "; fcst is " + str(round(fcst.iloc[i], 2)) + "; obs is " + str(
             round(obs.iloc[i], 2)) + "; cf is " + str(round(cf.iloc[i], 2)) + \
               "; bc_fcst is " + str(round(bc_fcst.iloc[i], 2)))
-        import copy
 
-        #       df2 = copy.deepcopy(df.filter(regex=name))
-        a = open(PROJ_DIR + '/' + OUTPUT_DIR + '/' + name + '_precip.txt', 'w')
+        a = open((OUTPUT_DIR + '/' + name + '_precip.txt').replace('\'', ''), 'w')
         a.write(str(df3))
         a.close()
 
@@ -192,3 +180,16 @@ for name in NAMES:
     plt.show()
     fig.savefig(PROJ_DIR + '/STN=' + name + '_WRF_vs_BCWRF.png', dpi=180)
     plt.close()
+
+print(OUTPUT_DIR)
+print(DATA_FILE.strip())
+print(DATA_FILE.replace('\'', ''))
+print(cf.iloc[i] + (cf.iloc[i + 1] - cf.iloc[i]) / (cf.iloc[i + 1] + cf.iloc[i]))
+print(cf.iloc[i])
+cf.iloc[i + 1]
+for x2 in range(1, 101, 1):
+    for y2 in range(1, 101, 1):
+        x = x2 / 100
+        y = y2 / 100
+        ycorr = x + (y - x) / (y + x)
+        print(x, y, ycorr)

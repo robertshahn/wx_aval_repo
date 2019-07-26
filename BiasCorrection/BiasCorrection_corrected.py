@@ -1,3 +1,9 @@
+
+# coding: utf-8
+
+# In[ ]:
+
+
 #!/usr/local/bin/python3
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -42,7 +48,7 @@ MAKE_PLOTS = False
 
 # TODO Make this a command line argument
 # Check to make sure the directory exists; if not, make it.
-OUTPUT_DIR = os.path.join(PROJ_DIR, 'outdir').replace('\'', '')
+OUTPUT_DIR = os.path.join(PROJ_DIR, 'outdir')
 if not os.path.exists(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)
 
@@ -52,11 +58,10 @@ date_rng = pd.date_range(start='12/11/2018', end='4/30/2019', freq='D')
 
 # Get the path to the data file
 # TODO Make this a command line argument
-DATA_FILE = os.path.join(PROJ_DIR, 'BiasCorrectionData_new.csv').replace('\'', '')
+DATA_FILE = os.path.join(PROJ_DIR, 'BiasCorrectionData_new.csv')
 
 # TODO Auto-detect this?
-COLUMNS = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2', \
-           'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
+COLUMNS = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',            'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
 NAMES = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
 # names = ['STV']
 
@@ -79,10 +84,7 @@ def plotFigure(data_plot, file_name, order):
 # Read in the data file
 df = pd.read_csv(DATA_FILE)
 df.columns = df.columns.str.strip()
-# df.drop(['Unnamed: 0'], axis=1, inplace=True)
 df = df.iloc[16:157, :]
-# df['WRF Day'].shape
-# df.truncate(after=112)
 df['Date'] = date_rng
 df = df.set_index('Date')
 
@@ -133,7 +135,7 @@ for name in NAMES:
             round(obs.iloc[i], 2)) + "; cf is " + str(round(cf.iloc[i], 2)) + \
               "; bc_fcst is " + str(round(bc_fcst.iloc[i], 2)))
 
-        a = open((OUTPUT_DIR + '/' + name + '_precip.txt').replace('\'', ''), 'w')
+        a = open((OUTPUT_DIR + '/' + name + '_precip.txt'), 'w')
         a.write(str(df3))
         a.close()
 
@@ -183,7 +185,7 @@ for name in NAMES:
 
 print(OUTPUT_DIR)
 print(DATA_FILE.strip())
-print(DATA_FILE.replace('\'', ''))
+print(DATA_FILE)
 print(cf.iloc[i] + (cf.iloc[i + 1] - cf.iloc[i]) / (cf.iloc[i + 1] + cf.iloc[i]))
 print(cf.iloc[i])
 cf.iloc[i + 1]
@@ -193,3 +195,7 @@ for x2 in range(1, 101, 1):
         y = y2 / 100
         ycorr = x + (y - x) / (y + x)
         print(x, y, ycorr)
+        
+get_ipython().system('jupyter nbconvert --to script BiasCorrection_corrected.ipynb')
+
+

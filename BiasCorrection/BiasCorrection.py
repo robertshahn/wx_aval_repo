@@ -55,6 +55,8 @@ COLUMNS_TO_DROP = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2
                    'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
 NAMES = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
 
+TAU = 30
+
 # ---------------------------------------------------------------------------------------------------------------------
 # METHODS
 # ---------------------------------------------------------------------------------------------------------------------
@@ -81,7 +83,6 @@ dataframe = dataframe.set_index('Date')
 dataframe.drop(COLUMNS_TO_DROP, inplace=True, axis='columns')
 
 for name in NAMES:
-    tau = 30
     df2 = copy.deepcopy(dataframe.filter(regex=name))
     df2[name + '_CF'] = 0
     df2[name + '_BC'] = 0
@@ -99,7 +100,7 @@ for name in NAMES:
         if (obs.iloc[i] <= 0.01 or np.isnan(obs.iloc[i]) == True or np.isnan(fcst.iloc[i]) == True):
             cf.iloc[i + 1] = cf.iloc[i]
         else:
-            cf.iloc[i + 1] = ((tau - 1) / tau) * cf.iloc[i] + (1 / tau) * (fcst.iloc[i] / obs.iloc[i])
+            cf.iloc[i + 1] = ((TAU - 1) / TAU) * cf.iloc[i] + (1 / TAU) * (fcst.iloc[i] / obs.iloc[i])
             # code to avoid large jumps in cf
             if (abs((cf.iloc[i + 1] / cf.iloc[i])) > 1.5 and (fcst.iloc[i] + obs.iloc[i]) < 1):
                 cf.iloc[i + 1] = cf.iloc[i] + (cf.iloc[i + 1] - cf.iloc[i]) / (cf.iloc[i + 1] + cf.iloc[i])

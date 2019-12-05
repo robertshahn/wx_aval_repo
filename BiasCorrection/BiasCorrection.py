@@ -108,7 +108,7 @@ for name in NAMES:
 
     cf.iloc[0] = 1.0
     for i in range(len(loc_dataframe) - 1):
-        if (obs.iloc[i] <= 0.01 or np.isnan(obs.iloc[i]) == True or np.isnan(fcst.iloc[i]) == True):
+        if obs.iloc[i] <= 0.01 or np.isnan(obs.iloc[i]) or np.isnan(fcst.iloc[i]):
             cf.iloc[i + 1] = cf.iloc[i]
         else:
             cf.iloc[i + 1] = ((TAU - 1) / TAU) * cf.iloc[i] + (1 / TAU) * (fcst.iloc[i] / obs.iloc[i])

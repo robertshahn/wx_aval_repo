@@ -172,7 +172,4 @@ for x2 in range(1, 101, 1):
         y = y2 / 100
         ycorr = x + (y - x) / (y + x)
         print(x, y, ycorr)
-        
-get_ipython().system('jupyter nbconvert --to script BiasCorrection_corrected.ipynb')
-
 

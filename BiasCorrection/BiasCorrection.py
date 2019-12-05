@@ -118,8 +118,7 @@ for name in NAMES:
         bc_fcst.iloc[i] = fcst.iloc[i] / cf.iloc[i]
         bc_bias.iloc[i] = bc_fcst.iloc[i] - obs.iloc[i]
         raw_bias.iloc[i] = fcst.iloc[i] - obs.iloc[i]
-        #         print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst.iloc[i],2)) + "; obs is " + str(round(obs.iloc[i],2)) + "; cf is " + str(round(cf.iloc[i],2)) + \
-        #                 "; fcst_bc is " + str(round(bc_fcst.iloc[i],2)))
+
         print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst.iloc[i], 2)) + "; obs is " + str(
             round(obs.iloc[i], 2)) + "; cf is " + str(round(cf.iloc[i], 2)) + \
               "; bc_fcst is " + str(round(bc_fcst.iloc[i], 2)))

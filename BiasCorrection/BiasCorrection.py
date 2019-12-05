@@ -106,7 +106,7 @@ for name in NAMES:
     obs = loc_dataframe[name + '1']
     fcst = loc_dataframe[name + '4']
 
-    cf.iloc[0] = 1
+    cf.iloc[0] = 1.0
     for i in range(len(loc_dataframe) - 1):
         if (obs.iloc[i] <= 0.01 or np.isnan(obs.iloc[i]) == True or np.isnan(fcst.iloc[i]) == True):
             cf.iloc[i + 1] = cf.iloc[i]

@@ -94,19 +94,6 @@ for name in NAMES:
     fcst = df2[name + '4']
     cf = df2[name + '_CF']
     cf.iloc[0] = 1
-    df3 = copy.deepcopy(dataframe.filter(regex=name).dropna(axis=0, how='any'))
-    df3[name + '_CF'] = 0
-    cf_drop = df3[name + '_CF']
-    df3[name + '_BC'] = 0
-    bc_fcst_drop = df3[name + '_BC']
-    df3[name + '_Raw_Bias'] = 0
-    raw_bias_drop = df3[name + '_Raw_Bias']
-    df3[name + '_BC_Bias'] = 0
-    bc_bias_drop = df3[name + '_BC_Bias']
-    obs_drop = df2[name + '1']
-    fcst_drop = df2[name + '4']
-    cf_drop = df2[name + '_CF']
-    cf.iloc[0] = 1
 
     for i in range(len(df2) - 1):
         if (obs.iloc[i] <= 0.01 or np.isnan(obs.iloc[i]) == True or np.isnan(fcst.iloc[i]) == True):
@@ -126,7 +113,7 @@ for name in NAMES:
               "; bc_fcst is " + str(round(bc_fcst.iloc[i], 2)))
 
         a = open((OUTPUT_DIR + '/' + name + '_precip.txt'), 'w')
-        a.write(str(df3))
+        a.write(str(df2))
         a.close()
 
     # Skip plot generation if so specified.

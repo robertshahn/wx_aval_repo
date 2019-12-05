@@ -46,18 +46,14 @@ OUTPUT_DIR = os.path.join(PROJ_DIR, 'outdir')
 if not os.path.exists(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)
 
-# TODO Make this a command line argument
-date_rng = pd.date_range(start='12/11/2018', end='4/30/2019', freq='D')
-# date_rng = pd.date_range(start='11/25/2018', end='5/13/2019', freq='D')
-
 # Get the path to the data file
 # TODO Make this a command line argument
 DATA_FILE = os.path.join(PROJ_DIR, 'BiasCorrectionData_new.csv')
 
-# TODO Auto-detect this?
-COLUMNS = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',            'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
+# TODO Auto-detect this?  We're just getting '__NAME from NAMES__[1,4]' from the csv file right now.
+COLUMNS_TO_DROP = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',
+                   'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
 NAMES = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
-# names = ['STV']
 
 # ---------------------------------------------------------------------------------------------------------------------
 # METHODS
@@ -75,18 +71,18 @@ def plotFigure(data_plot, file_name, order):
 # ---------------------------------------------------------------------------------------------------------------------
 # TODO Remove various commented out scratch code.
 
-# Read in the data file
-df = pd.read_csv(DATA_FILE)
-df.columns = df.columns.str.strip()
-df = df.iloc[16:157, :]
-df['Date'] = date_rng
-df = df.set_index('Date')
-
-df.drop(COLUMNS, inplace=True, axis=1)
+# Read in the data file, selecting the subset of the data we'd like
+dataframe = pd.read_csv(DATA_FILE)
+#dataframe.columns = dataframe.columns.str.strip()
+# TODO make this a commandline argument; currently selecting from 20181211 to 20190430
+dataframe = dataframe.iloc[16:157, :]
+dataframe['Date'] = pd.to_datetime(dataframe['Date'])
+dataframe = dataframe.set_index('Date')
+dataframe.drop(COLUMNS_TO_DROP, inplace=True, axis='columns')
 
 for name in NAMES:
     tau = 30
-    df2 = copy.deepcopy(df.filter(regex=name))
+    df2 = copy.deepcopy(dataframe.filter(regex=name))
     df2[name + '_CF'] = 0
     df2[name + '_BC'] = 0
     bc_fcst = df2[name + '_BC']
@@ -98,7 +94,7 @@ for name in NAMES:
     fcst = df2[name + '4']
     cf = df2[name + '_CF']
     cf.iloc[0] = 1
-    df3 = copy.deepcopy(df.filter(regex=name).dropna(axis=0, how='any'))
+    df3 = copy.deepcopy(dataframe.filter(regex=name).dropna(axis=0, how='any'))
     df3[name + '_CF'] = 0
     cf_drop = df3[name + '_CF']
     df3[name + '_BC'] = 0
@@ -123,9 +119,9 @@ for name in NAMES:
         bc_fcst.iloc[i] = fcst.iloc[i] / cf.iloc[i]
         bc_bias.iloc[i] = bc_fcst.iloc[i] - obs.iloc[i]
         raw_bias.iloc[i] = fcst.iloc[i] - obs.iloc[i]
-        #         print("date is " + str(df.index.date[i]) + "; fcst is " + str(round(fcst.iloc[i],2)) + "; obs is " + str(round(obs.iloc[i],2)) + "; cf is " + str(round(cf.iloc[i],2)) + \
+        #         print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst.iloc[i],2)) + "; obs is " + str(round(obs.iloc[i],2)) + "; cf is " + str(round(cf.iloc[i],2)) + \
         #                 "; fcst_bc is " + str(round(bc_fcst.iloc[i],2)))
-        print("date is " + str(df.index.date[i]) + "; fcst is " + str(round(fcst.iloc[i], 2)) + "; obs is " + str(
+        print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst.iloc[i], 2)) + "; obs is " + str(
             round(obs.iloc[i], 2)) + "; cf is " + str(round(cf.iloc[i], 2)) + \
               "; bc_fcst is " + str(round(bc_fcst.iloc[i], 2)))
 

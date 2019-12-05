@@ -83,20 +83,31 @@ dataframe = dataframe.set_index('Date')
 dataframe.drop(COLUMNS_TO_DROP, inplace=True, axis='columns')
 
 for name in NAMES:
-    df2 = copy.deepcopy(dataframe.filter(regex=name))
-    df2[name + '_CF'] = 0
-    df2[name + '_BC'] = 0
-    bc_fcst = df2[name + '_BC']
-    df2[name + '_Raw_Bias'] = 0
-    raw_bias = df2[name + '_Raw_Bias']
-    df2[name + '_BC_Bias'] = 0
-    bc_bias = df2[name + '_BC_Bias']
-    obs = df2[name + '1']
-    fcst = df2[name + '4']
-    cf = df2[name + '_CF']
-    cf.iloc[0] = 1
+    # Get a copy of the data so we can easily output it
+    loc_dataframe = dataframe.filter(regex=name).copy(deep=True)
 
-    for i in range(len(df2) - 1):
+    # Set up the extra columns we need for our math
+    cf_lbl = name + '_CF'
+    loc_dataframe[cf_lbl] = 0
+    cf = loc_dataframe[cf_lbl]
+
+    bc_lbl = name + '_BC'
+    loc_dataframe[bc_lbl] = 0
+    bc_fcst = loc_dataframe[bc_lbl]
+
+    raw_bias_lbl = name + '_Raw_Bias'
+    loc_dataframe[raw_bias_lbl] = 0
+    raw_bias = loc_dataframe[raw_bias_lbl]
+
+    bc_bias_lbl = name + '_BC_Bias'
+    loc_dataframe[bc_bias_lbl] = 0
+    bc_bias = loc_dataframe[bc_bias_lbl]
+
+    obs = loc_dataframe[name + '1']
+    fcst = loc_dataframe[name + '4']
+
+    cf.iloc[0] = 1
+    for i in range(len(loc_dataframe) - 1):
         if (obs.iloc[i] <= 0.01 or np.isnan(obs.iloc[i]) == True or np.isnan(fcst.iloc[i]) == True):
             cf.iloc[i + 1] = cf.iloc[i]
         else:
@@ -114,7 +125,7 @@ for name in NAMES:
               "; bc_fcst is " + str(round(bc_fcst.iloc[i], 2)))
 
         a = open((OUTPUT_DIR + '/' + name + '_precip.txt'), 'w')
-        a.write(str(df2))
+        a.write(str(loc_dataframe))
         a.close()
 
     # Skip plot generation if so specified.

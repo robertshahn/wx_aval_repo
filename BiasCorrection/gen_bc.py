@@ -195,27 +195,29 @@ def make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     fig.savefig(OUTPUT_DIR + '/' + name + '--WRF_vs_BCWRF.png', dpi=180)
     plt.close()
 
+def main():
+    # Read in the data file, selecting the subset of the data we'd like
+    dataframe = read_csv_data()
+
+    for name in NAMES:
+        # Get a copy of the station data we'll be editing
+        stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias = prep_station_dataframe(dataframe, name)
+        
+        # Generate the correction factor for this station
+        gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
+
+        # Write the bias-corrected forecast and other measures to a file, i.e., dump stat_df
+        # TODO make this optional?
+        a = open((OUTPUT_DIR + '/' + name + '_precip.txt'), 'w')
+        a.write(str(stat_df))
+        a.close()
+
+        # Make plots if so specified.
+        if MAKE_PLOTS:
+            make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
+
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY
 # ---------------------------------------------------------------------------------------------------------------------
-
-# Read in the data file, selecting the subset of the data we'd like
-dataframe = read_csv_data()
-
-for name in NAMES:
-    # Get a copy of the station data we'll be editing
-    stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias = prep_station_dataframe(dataframe, name)
-
-    # Generate the correction factor for this station
-    gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
-
-    # Write the bias-corrected forecast and other measures to a file, i.e., dump stat_df
-    # TODO make this optional?
-    a = open((OUTPUT_DIR + '/' + name + '_precip.txt'), 'w')
-    a.write(str(stat_df))
-    a.close()
-
-    # Make plots if so specified.
-    if MAKE_PLOTS:
-        make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
-
+if __name__ == "__main__":
+    main()

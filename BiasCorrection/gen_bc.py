@@ -64,7 +64,7 @@ def read_csv_data():
 
     return dataframe
 
-def prep_station_dataframe(dataframe):
+def prep_station_dataframe(dataframe, name):
     # Get a copy of the data so we can easily output it
     stat_df = dataframe.filter(regex=name).copy(deep=True)
 
@@ -138,7 +138,7 @@ def gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
         # print out a message
         # TODO make printing of this optional, and make the output more concise
         print("date is {date}; fcst is {fcst}; obs is {obs}; cf is {cf}; bc_fcst is {bc_fcst}".format(
-            date=dataframe.index.date[i],
+            date=stat_df.index.date[i],
             fcst=str(round(fcst_today, 2)),
             obs=str(round(obs_today, 2)),
             cf=str(round(cf_today, 2)),
@@ -204,7 +204,7 @@ dataframe = read_csv_data()
 
 for name in NAMES:
     # Get a copy of the station data we'll be editing
-    stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias = prep_station_dataframe(dataframe)
+    stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias = prep_station_dataframe(dataframe, name)
 
     # Generate the correction factor for this station
     gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)

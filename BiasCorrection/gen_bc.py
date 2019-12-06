@@ -15,11 +15,6 @@ from sklearn import metrics
 # CONFIGURATION and INITIALIZATION
 # ---------------------------------------------------------------------------------------------------------------------
 
-# Read in the config file
-config = configparser.ConfigParser()
-config.read('config.ini')
-PROJ_DIR = config['DEFAULT']['PROJECT_DIR']
-
 # pandas settings for outputting numerical data
 # These allow us to just an entire DataFrame to a file.
 pd.set_option('display.max_rows', 500)
@@ -32,11 +27,6 @@ plt.close("all")
 
 # TODO Useful for testing, but perhaps remove this for prod.
 DEFAULT_CSV_NAME = 'BiasCorrectionData.csv'
-
-# Read in the config file
-config = configparser.ConfigParser()
-config.read('config.ini')
-PROJ_DIR = config['DEFAULT']['PROJECT_DIR']
 
 # FIXME Auto-detect this?  We're just getting '__NAME from NAMES__[1,4]' from the csv file right now.
 COLUMNS_TO_DROP = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',
@@ -157,7 +147,7 @@ def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
 
     plt.xlabel('Month', fontsize=20)
     plt.ylabel('Precip Bias (")', fontsize=20)
-    
+
     add_plot_text(plt, 0.35, 0.85,
                   name + " Raw 1.33-km WRF MAE = " + str(round(metrics.mean_absolute_error(fcst, obs), 3)))
     add_plot_text(plt, 0.35, 0.8,
@@ -189,6 +179,11 @@ def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     plt.close()
 
 def configure_script():
+    # Read in the config file
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    proj_dir = config['DEFAULT']['PROJECT_DIR']
+
     parser = argparse.ArgumentParser(description='Generate correction factor for NWAC wx data.')
 
     parser.add_argument('-P', action='store_true',
@@ -196,11 +191,11 @@ def configure_script():
                         dest='make_plots')
     parser.add_argument('-i', '--input', action='store',
                         help="Path to input CSV file.",
-                        default=os.path.join(PROJ_DIR, DEFAULT_CSV_NAME),
+                        default=os.path.join(proj_dir, DEFAULT_CSV_NAME),
                         dest='input_file_path')
     parser.add_argument('-o', '--output', action='store',
                         help="Path to output directory.",
-                        default=os.path.join(PROJ_DIR, 'outdir'),
+                        default=os.path.join(proj_dir, 'outdir'),
                         dest='outdir')
 
     args = parser.parse_args()

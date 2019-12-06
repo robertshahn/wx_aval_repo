@@ -109,7 +109,7 @@ def gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
             # Avoid large jumps in the correction factor:
             # If the CF increases by more than 50% and the sum of the forecast and observed precip is less than 1, then
             # normalize (currently there is an error in this).
-            # FIXME make '1.5' a configurable global variable
+            # TODO make '1.5' a configurable global variable
             # TODO this only prevents increases in the CF, what about decreases?
             cf_tmrw = cf.iat[i + 1]
             if (cf_tmrw / cf_today > 1.5 and (fcst_today + obs_today) < 1):

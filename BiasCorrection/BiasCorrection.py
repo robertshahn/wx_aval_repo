@@ -191,16 +191,3 @@ for name in NAMES:
     fig.savefig(PROJ_DIR + '/STN=' + name + '_WRF_vs_BCWRF.png', dpi=180)
     plt.close()
 
-print(OUTPUT_DIR)
-print(DATA_FILE.strip())
-print(DATA_FILE)
-print(cf.iloc[i] + (cf.iloc[i + 1] - cf.iloc[i]) / (cf.iloc[i + 1] + cf.iloc[i]))
-print(cf.iloc[i])
-cf.iloc[i + 1]
-for x2 in range(1, 101, 1):
-    for y2 in range(1, 101, 1):
-        x = x2 / 100
-        y = y2 / 100
-        ycorr = x + (y - x) / (y + x)
-        print(x, y, ycorr)
-

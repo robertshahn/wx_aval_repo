@@ -38,13 +38,13 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 PROJ_DIR = config['DEFAULT']['PROJECT_DIR']
 
-# TODO Make this a command line argument
+# FIXME Make this a command line argument
 # Check to make sure the directory exists; if not, make it.
 OUTPUT_DIR = os.path.join(PROJ_DIR, 'outdir')
 if not os.path.exists(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)
 
-# TODO Auto-detect this?  We're just getting '__NAME from NAMES__[1,4]' from the csv file right now.
+# FIXME Auto-detect this?  We're just getting '__NAME from NAMES__[1,4]' from the csv file right now.
 COLUMNS_TO_DROP = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',
                    'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
 NAMES = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
@@ -58,7 +58,7 @@ TAU = 30
 def read_csv_data(file_name):
     dataframe = pd.read_csv(file_name)
     # dataframe.columns = dataframe.columns.str.strip()
-    # TODO make this a commandline argument; currently selecting from 20181211 to 20190430
+    # FIXME make this a commandline argument; currently selecting from 20181211 to 20190430
     dataframe = dataframe.iloc[16:157, :]
     dataframe['Date'] = pd.to_datetime(dataframe['Date'])
     dataframe = dataframe.set_index('Date')
@@ -125,7 +125,7 @@ def gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
             # Avoid large jumps in the correction factor:
             # If the CF increases by more than 50% and the sum of the forecast and observed precip is less than 1, then
             # normalize (currently there is an error in this).
-            # TODO make '1.5' a configurable global variable
+            # FIXME make '1.5' a configurable global variable
             # TODO this only prevents increases in the CF, what about decreases?
             cf_tmrw = cf.iat[i + 1]
             if (cf_tmrw / cf_today > 1.5 and (fcst_today + obs_today) < 1):
@@ -138,7 +138,7 @@ def gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
         raw_bias.iat[i] = fcst_today - obs_today
 
         # print out a message
-        # TODO make printing of this optional, and make the output more concise
+        # FIXME make printing of this optional, and make the output more concise
         print("date is {date}; fcst is {fcst}; obs is {obs}; cf is {cf}; bc_fcst is {bc_fcst}".format(
             date=stat_df.index.date[i],
             fcst=str(round(fcst_today, 2)),
@@ -150,7 +150,7 @@ def gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
 def make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     fig = plt.figure(figsize=(16, 16))
 
-    # TODO make what gets printed a command line argument
+    # FIXME make what gets printed a command line argument
     raw_bias.plot(figsize=(20, 10), fontsize=20, color="green")
     bc_bias.plot(figsize=(20, 10), fontsize=20, color="red")
     #     bc_fcst.plot(figsize=(20,10), fontsize=20, color="blue")
@@ -160,7 +160,7 @@ def make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
 
     plt.xlabel('Month', fontsize=20)
     plt.ylabel('Precip Bias (")', fontsize=20)
-    # TODO make this a method since many of the arguments are the same
+    # FIXME make this a method since many of the arguments are the same
     plt.figtext(0.35, 0.85, name + " Raw 1.33-km WRF MAE = " +
                 str(round(metrics.mean_absolute_error(fcst, obs), 3)),
                 wrap=True, horizontalalignment='center', fontsize=16)
@@ -173,7 +173,7 @@ def make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     plt.figtext(0.65, 0.85, name + " BC 1.33-km WRF MAE = " +
                 str(round(metrics.mean_absolute_error(bc_fcst, obs), 3)),
                 wrap=True, horizontalalignment='center', fontsize=16)
-    # TODO get rid of the magic range
+    # FIXME get rid of the magic range
     plt.figtext(0.35, 0.15, name + " Mean Raw 1.33-km WRF Bias = " +
                 str(round(raw_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)),
                 wrap=True, horizontalalignment='center', fontsize=16)
@@ -190,7 +190,7 @@ def make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     plt.legend(fontsize=16)
     plt.title("STN = " + name + " FH12-36 Forecast Comparison: 1.33-km WRF and BC WRF Precip Bias", fontsize=20)
 
-    # TODO Make showing the plot optional
+    # FIXME Make showing the plot optional
     plt.show()
 
     # save the plot to the output directory

@@ -30,10 +30,8 @@ plt.close("all")
 DEFAULT_CSV_NAME = 'BiasCorrectionData.csv'
 DEFAULT_STATIONS = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
 TAU = 30
-
-# FIXME Auto-detect this?  We're just getting '__NAME from NAMES__[1,4]' from the csv file right now.
-COLUMNS_TO_DROP = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',
-                   'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
+#TODO Robert, will the column headers always be SSSD where SSS is the station identifier and D is [1,4]?
+SUFFIXES_TO_DROP = ['2', '3']
 
 # ---------------------------------------------------------------------------------------------------------------------
 # METHODS
@@ -46,7 +44,12 @@ def read_csv_data(file_name):
     dataframe = dataframe.iloc[16:157, :]
     dataframe['Date'] = pd.to_datetime(dataframe['Date'])
     dataframe = dataframe.set_index('Date')
-    dataframe.drop(COLUMNS_TO_DROP, inplace=True, axis='columns')
+
+    # Figure out which columns we'll be dropping
+    cols_to_drop = []
+    for suffix in SUFFIXES_TO_DROP:
+        cols_to_drop.extend(dataframe.filter(regex="{}$".format(suffix), axis='columns').columns)
+    dataframe.drop(cols_to_drop, inplace=True, axis='columns')
 
     return dataframe
 

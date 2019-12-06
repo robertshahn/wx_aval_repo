@@ -101,14 +101,14 @@ def gen_station_cf(name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, arg
     cf.iat[0] = 1.0
     for i in range(len(stat_df) - 1):
         # Get some handy nicknames to make the code more readable...
-        obs_today = obs.iat[i]
-        fcst_today = fcst.iat[i]
-        cf_today = cf.iat[i]
+        obs_cur = obs.iat[i]
+        fcst_cur = fcst.iat[i]
+        cf_cur = cf.iat[i]
 
         # If the observation is (nearly) zero or we have an error flag for the observation or forecast,
-        # set tomorrow's correction factor to today's.
-        if obs_today <= 0.01 or np.isnan(obs_today) or np.isnan(fcst_today):
-            cf.iat[i + 1] = cf_today
+        # set tomorrow's correction factor to cur's.
+        if obs_cur <= 0.01 or np.isnan(obs_cur) or np.isnan(fcst_cur):
+            cf.iat[i + 1] = cf_cur
         else:
             # Update the correction factor for tomorrow.
             #
@@ -119,22 +119,22 @@ def gen_station_cf(name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, arg
             # This formula is equivalent to a geometric series of the form:
             # cf_i = 1 / TAU * SUM(k=[0,infinity))(r^k * a_i-k-1) where
             # r = (TAU - 1) / TAU and a_x = fcst_x / obs_x
-            cf.iat[i + 1] = (((TAU - 1) / TAU) * cf_today) + ((1 / TAU) * (fcst_today / obs_today))
+            cf.iat[i + 1] = (((TAU - 1) / TAU) * cf_cur) + ((1 / TAU) * (fcst_cur / obs_cur))
 
             # Avoid large jumps in the correction factor:
             # If the CF increases by more than 50% and the sum of the forecast and observed precip is less than 1, then
             # normalize (currently there is an error in this).
             # TODO make '1.5' a configurable global variable
             # TODO this only prevents increases in the CF, what about decreases?
-            cf_tmrw = cf.iat[i + 1]
-            if (cf_tmrw / cf_today > 1.5 and (fcst_today + obs_today) < 1):
+            cf_next = cf.iat[i + 1]
+            if (cf_next / cf_cur > 1.5 and (fcst_cur + obs_cur) < 1):
                 # TODO fix this normalization so it does something mathematically sound (a logarithm?)
-                cf.iat[i + 1] = cf_today + (cf_tmrw - cf_today) / (cf_tmrw + cf_today)
+                cf.iat[i + 1] = cf_cur + (cf_next - cf_cur) / (cf_next + cf_cur)
 
         # Update the bias-corrected forecast and measures of bias
-        bc_fcst.iat[i] = fcst_today / cf_today
-        bc_bias.iat[i] = bc_fcst.iat[i] - obs_today
-        raw_bias.iat[i] = fcst_today - obs_today
+        bc_fcst.iat[i] = fcst_cur / cf_cur
+        bc_bias.iat[i] = bc_fcst.iat[i] - obs_cur
+        raw_bias.iat[i] = fcst_cur - obs_cur
 
         # print out a message
         if not args.silence:
@@ -142,9 +142,9 @@ def gen_station_cf(name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, arg
             print("{date} {station} {fcst} {obs} {cf} {bc_fcst}".format(
                 date=stat_df.index.date[i],
                 station=name,
-                fcst=str(round(fcst_today, 2)),
-                obs=str(round(obs_today, 2)),
-                cf=str(round(cf_today, 2)),
+                fcst=str(round(fcst_cur, 2)),
+                obs=str(round(obs_cur, 2)),
+                cf=str(round(cf_cur, 2)),
                 bc_fcst=str(round(bc_fcst.iat[i], 2))
             ))
 

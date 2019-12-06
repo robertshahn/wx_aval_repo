@@ -88,19 +88,19 @@ for name in NAMES:
 
     # Set up the extra columns we need for our math
     cf_lbl = name + '_CF'
-    loc_dataframe[cf_lbl] = 0
+    loc_dataframe[cf_lbl] = 0.0
     cf = loc_dataframe[cf_lbl]
 
     bc_lbl = name + '_BC'
-    loc_dataframe[bc_lbl] = 0
+    loc_dataframe[bc_lbl] = 0.0
     bc_fcst = loc_dataframe[bc_lbl]
 
     raw_bias_lbl = name + '_Raw_Bias'
-    loc_dataframe[raw_bias_lbl] = 0
+    loc_dataframe[raw_bias_lbl] = 0.0
     raw_bias = loc_dataframe[raw_bias_lbl]
 
     bc_bias_lbl = name + '_BC_Bias'
-    loc_dataframe[bc_bias_lbl] = 0
+    loc_dataframe[bc_bias_lbl] = 0.0
     bc_bias = loc_dataframe[bc_bias_lbl]
 
     obs = loc_dataframe[name + '1']

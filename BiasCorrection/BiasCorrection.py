@@ -119,15 +119,15 @@ for name in NAMES:
             cf.iat[i + 1] = cf_today
         else:
             # Update the correction factor for tomorrow.
-            cf.iat[i + 1] = ((TAU - 1) / TAU) * cf_today + (1 / TAU) * (fcst_today / obs_today)
+            cf.iat[i + 1] = (((TAU - 1) / TAU) * cf_today) + ((1 / TAU) * (fcst_today / obs_today))
+            
             # Avoid large jumps in the correction factor:
-
             # If the CF increases by more than 50% and the sum of the forecast and observed precip is less than 1, then
             # normalize (currently there is an error in this).
             # TODO make '1.5' a configurable global variable
             # TODO this only prevents increases in the CF, what about decreases?
             cf_tmrw = cf.iat[i + 1]
-            if (abs((cf_tmrw / cf_today)) > 1.5 and (fcst_today + obs_today) < 1):
+            if (cf_tmrw / cf_today > 1.5 and (fcst_today + obs_today) < 1):
                 #TODO fix this normalization so it does something mathematically sound
                 cf.iat[i + 1] = cf_today + (cf_tmrw - cf_today) / (cf_tmrw + cf_today)
 

@@ -38,12 +38,6 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 PROJ_DIR = config['DEFAULT']['PROJECT_DIR']
 
-# FIXME Make this a command line argument
-# Check to make sure the directory exists; if not, make it.
-OUTPUT_DIR = os.path.join(PROJ_DIR, 'outdir')
-if not os.path.exists(OUTPUT_DIR):
-    os.mkdir(OUTPUT_DIR)
-
 # FIXME Auto-detect this?  We're just getting '__NAME from NAMES__[1,4]' from the csv file right now.
 COLUMNS_TO_DROP = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',
                    'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
@@ -147,7 +141,7 @@ def gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
             bc_fcst=str(round(bc_fcst.iat[i], 2))
         ))
 
-def make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
+def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     fig = plt.figure(figsize=(16, 16))
 
     # FIXME make what gets printed a command line argument
@@ -194,21 +188,29 @@ def make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     plt.show()
 
     # save the plot to the output directory
-    fig.savefig(OUTPUT_DIR + '/' + name + '--WRF_vs_BCWRF.png', dpi=180)
+    fig.savefig(outdir + '/' + name + '--WRF_vs_BCWRF.png', dpi=180)
     plt.close()
 
 def configure_script():
     parser = argparse.ArgumentParser(description='Generate correction factor for NWAC wx data.')
 
-    parser.add_argument('-P', '--Plots', action='store_true',
+    parser.add_argument('-P', action='store_true',
                         help="Generate plots for data",
                         dest='make_plots')
     parser.add_argument('-i', '--input', action='store',
                         help="Path to input CSV file.",
                         default=os.path.join(PROJ_DIR, DEFAULT_CSV_NAME),
                         dest='input_file_path')
+    parser.add_argument('-o', '--output', action='store',
+                        help="Path to output directory.",
+                        default=os.path.join(PROJ_DIR, 'outdir'),
+                        dest='outdir')
 
     args = parser.parse_args()
+
+    # Check to make sure the output directory exists; if not, make it.
+    if not os.path.exists(args.outdir):
+        os.mkdir(args.outdir)
 
     return args
 
@@ -227,13 +229,13 @@ def main():
 
         # Write the bias-corrected forecast and other measures to a file, i.e., dump stat_df
         # TODO make this optional?
-        a = open((OUTPUT_DIR + '/' + name + '_precip.txt'), 'w')
+        a = open((args.outdir + '/' + name + '_precip.txt'), 'w')
         a.write(str(stat_df))
         a.close()
 
         # Make plots if so specified.
         if args.make_plots:
-            make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
+            make_plots(args.outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY

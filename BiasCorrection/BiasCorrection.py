@@ -40,7 +40,7 @@ if not os.path.exists(OUTPUT_DIR):
 
 # Get the path to the data file
 # TODO Make this a command line argument
-DATA_FILE = os.path.join(PROJ_DIR, 'BiasCorrectionData_new.csv')
+DATA_FILE = os.path.join(PROJ_DIR, 'BiasCorrectionData.csv')
 
 # TODO Auto-detect this?  We're just getting '__NAME from NAMES__[1,4]' from the csv file right now.
 COLUMNS_TO_DROP = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',

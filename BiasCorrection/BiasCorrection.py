@@ -71,7 +71,6 @@ def plotFigure(data_plot, file_name, order):
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY
 # ---------------------------------------------------------------------------------------------------------------------
-# TODO Remove various commented out scratch code.
 
 # Read in the data file, selecting the subset of the data we'd like
 dataframe = pd.read_csv(DATA_FILE)

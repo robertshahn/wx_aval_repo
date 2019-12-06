@@ -197,11 +197,11 @@ def configure_script():
     parser = argparse.ArgumentParser(description='Generate correction factor for NWAC wx data.')
 
     parser.add_argument('-s', action='store', type=int,
-                        help="start date",
+                        help="start date, defaults to {}".format(DEFAULT_START_DATE),
                         default=DEFAULT_START_DATE,
                         dest='start')
     parser.add_argument('-e', action='store', type=int,
-                        help="end date",
+                        help="end date, defaults to {}".format(DEFAULT_END_DATE),
                         default=DEFAULT_END_DATE,
                         dest='end')
     parser.add_argument('-i', '--input', action='store',
@@ -228,9 +228,14 @@ def configure_script():
     args = parser.parse_args()
 
     # Get our state and end datetimes
-    #FIXME make sure start < end
     args.start = dt.datetime.strptime(str(args.start), "%Y%m%d").strftime("%Y-%m-%d")
     args.end = dt.datetime.strptime(str(args.end), "%Y%m%d").strftime("%Y-%m-%d")
+    if args.start >= args.end:
+        sys.stderr.write("Start must be before end.  You specified: {start} to {end}\n".format(
+            start=args.start,
+            end=args.end
+        ))
+        exit(1)
 
     # Check to make sure the output directory exists; if not, make it.
     if not os.path.exists(args.outdir):

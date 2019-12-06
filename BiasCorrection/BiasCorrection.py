@@ -152,43 +152,51 @@ for name in NAMES:
         continue
 
     fig = plt.figure(figsize=(16, 16))
+
+    # TODO make what gets printed a command line argument
     raw_bias.plot(figsize=(20, 10), fontsize=20, color="green")
     bc_bias.plot(figsize=(20, 10), fontsize=20, color="red")
     #     bc_fcst.plot(figsize=(20,10), fontsize=20, color="blue")
     #     fcst.plot(figsize=(20,10), fontsize=20, color="magenta")
     #     obs.plot(figsize=(20,10), fontsize=20, color="orange")
     cf.plot(figsize=(20, 10), fontsize=20, color="black")
+
     plt.xlabel('Month', fontsize=20)
     plt.ylabel('Precip Bias (")', fontsize=20)
-    plt.figtext(0.35, 0.85, name + " Raw 1.33-km WRF MAE = " + str(
-        round(metrics.mean_absolute_error(fcst, obs), 3)), wrap=True,
-                horizontalalignment='center', fontsize=16)
-    plt.figtext(0.35, 0.8, name + " Raw 1.33-km WRF MSE = " + str(
-        round(metrics.mean_squared_error(fcst, obs), 3)), wrap=True,
-                horizontalalignment='center', fontsize=16)
-    plt.figtext(0.35, 0.75, name + " Raw 1.33-km WRF RMSE = " + str(
-        round(np.sqrt(metrics.mean_absolute_error(fcst, obs)), 3)),
+    # TODO make this a method since many of the arguments are the same
+    plt.figtext(0.35, 0.85, name + " Raw 1.33-km WRF MAE = " +
+                str(round(metrics.mean_absolute_error(fcst, obs), 3)),
                 wrap=True, horizontalalignment='center', fontsize=16)
-    plt.figtext(0.65, 0.85, name + " BC 1.33-km WRF MAE = " + str(
-        round(metrics.mean_absolute_error(bc_fcst, obs), 3)), wrap=True,
-                horizontalalignment='center', fontsize=16)
-    plt.figtext(0.35, 0.15, name + " Mean Raw 1.33-km WRF Bias = " + str(
-        round(raw_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)), wrap=True,
-                horizontalalignment='center', fontsize=16)
-    plt.figtext(0.65, 0.8, name + " BC 1.33-km WRF MSE = " + str(
-        round(metrics.mean_squared_error(bc_fcst, obs), 3)), wrap=True,
-                horizontalalignment='center', fontsize=16)
-    plt.figtext(0.65, 0.75, name + " BC 1.33-km WRF RMSE = " + str(
-        round(np.sqrt(metrics.mean_absolute_error(bc_fcst, obs)), 3)),
+    plt.figtext(0.35, 0.8, name + " Raw 1.33-km WRF MSE = " +
+                str(round(metrics.mean_squared_error(fcst, obs), 3)),
                 wrap=True, horizontalalignment='center', fontsize=16)
-    plt.figtext(0.65, 0.15, name + " Mean BC WRF 1.33-km Bias = " + str(
-        round(bc_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)), wrap=True,
-                horizontalalignment='center', fontsize=16)
+    plt.figtext(0.35, 0.75, name + " Raw 1.33-km WRF RMSE = " +
+                str(round(np.sqrt(metrics.mean_absolute_error(fcst, obs)), 3)),
+                wrap=True, horizontalalignment='center', fontsize=16)
+    plt.figtext(0.65, 0.85, name + " BC 1.33-km WRF MAE = " +
+                str(round(metrics.mean_absolute_error(bc_fcst, obs), 3)),
+                wrap=True, horizontalalignment='center', fontsize=16)
+    # TODO get rid of the magic range
+    plt.figtext(0.35, 0.15, name + " Mean Raw 1.33-km WRF Bias = " +
+                str(round(raw_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)),
+                wrap=True, horizontalalignment='center', fontsize=16)
+    plt.figtext(0.65, 0.8, name + " BC 1.33-km WRF MSE = " +
+                str(round(metrics.mean_squared_error(bc_fcst, obs), 3)),
+                wrap=True, horizontalalignment='center', fontsize=16)
+    plt.figtext(0.65, 0.75, name + " BC 1.33-km WRF RMSE = " +
+                str(round(np.sqrt(metrics.mean_absolute_error(bc_fcst, obs)), 3)),
+                wrap=True, horizontalalignment='center', fontsize=16)
+    plt.figtext(0.65, 0.15, name + " Mean BC WRF 1.33-km Bias = " +
+                str(round(bc_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)),
+                wrap=True, horizontalalignment='center', fontsize=16)
 
     plt.legend(fontsize=16)
     plt.title("STN = " + name + " FH12-36 Forecast Comparison: 1.33-km WRF and BC WRF Precip Bias", fontsize=20)
+
+    # TODO Make showing the plot optional
     plt.show()
 
+    # save the plot to the output directory
     fig.savefig(OUTPUT_DIR + '/' + name + '--WRF_vs_BCWRF.png', dpi=180)
     plt.close()
 

@@ -7,9 +7,10 @@ import argparse
 import configparser
 import os.path
 import sys
+import datetime as dt
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn import metrics
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -28,6 +29,8 @@ plt.close("all")
 
 # TODO Useful for testing, but perhaps remove this for prod.
 DEFAULT_CSV_NAME = 'BiasCorrectionData.csv'
+DEFAULT_START_DATE = 20181211
+DEFAULT_END_DATE = 20190430
 DEFAULT_STATIONS = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
 TAU = 30
 #TODO Robert, will the column headers always be SSSD where SSS is the station identifier and D is [1,4]?
@@ -37,13 +40,14 @@ SUFFIXES_TO_DROP = ['2', '3']
 # METHODS
 # ---------------------------------------------------------------------------------------------------------------------
 
-def read_csv_data(file_name):
+def read_csv_data(file_name, start_date, end_date):
+    # read in the CSV data
     dataframe = pd.read_csv(file_name)
-    # dataframe.columns = dataframe.columns.str.strip()
-    # FIXME make this a commandline argument; currently selecting from 20181211 to 20190430
-    dataframe = dataframe.iloc[16:157, :]
+
+    # filter based on date
     dataframe['Date'] = pd.to_datetime(dataframe['Date'])
     dataframe = dataframe.set_index('Date')
+    dataframe= dataframe.loc[start_date:end_date]
 
     # Figure out which columns we'll be dropping
     cols_to_drop = []
@@ -189,9 +193,14 @@ def configure_script():
 
     parser = argparse.ArgumentParser(description='Generate correction factor for NWAC wx data.')
 
-    parser.add_argument('-P', action='store_true',
-                        help="Generate plots for data",
-                        dest='make_plots')
+    parser.add_argument('-s', action='store', type=int,
+                        help="start date",
+                        default=DEFAULT_START_DATE,
+                        dest='start')
+    parser.add_argument('-e', action='store', type=int,
+                        help="end date",
+                        default=DEFAULT_END_DATE,
+                        dest='end')
     parser.add_argument('-i', '--input', action='store',
                         help="Path to input CSV file.",
                         default=os.path.join(proj_dir, DEFAULT_CSV_NAME),
@@ -200,6 +209,9 @@ def configure_script():
                         help="Path to output directory.",
                         default=os.path.join(proj_dir, 'outdir'),
                         dest='outdir')
+    parser.add_argument('-P', action='store_true',
+                        help="Generate plots for data",
+                        dest='make_plots')
     parser.add_argument('stations', metavar='S', action='store',
                         help="Wx stations for which to conduct analysis.  Must match CSV headers.  Possible values: " +
                         " ".join(DEFAULT_STATIONS) + ".",
@@ -207,10 +219,15 @@ def configure_script():
 
     args = parser.parse_args()
 
+    # Get our state and end datetimes
+    args.start = dt.datetime.strptime(str(args.start), "%Y%m%d").strftime("%Y-%m-%d")
+    args.end = dt.datetime.strptime(str(args.end), "%Y%m%d").strftime("%Y-%m-%d")
+
     # Check to make sure the output directory exists; if not, make it.
     if not os.path.exists(args.outdir):
         os.mkdir(args.outdir)
 
+    # Get the stations for which we'll do the analysis.
     if len(args.stations) == 0:
         args.stations = DEFAULT_STATIONS
     else:
@@ -227,7 +244,7 @@ def main():
     args = configure_script()
 
     # Read in the data file, selecting the subset of the data we'd like
-    dataframe = read_csv_data(args.input_file_path)
+    dataframe = read_csv_data(args.input_file_path, args.start, args.end)
 
     for name in args.stations:
         # Get a copy of the station data we'll be editing

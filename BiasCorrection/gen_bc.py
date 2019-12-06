@@ -141,6 +141,9 @@ def gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
             bc_fcst=str(round(bc_fcst.iat[i], 2))
         ))
 
+def add_plot_text(plt, x, y, text):
+    plt.figtext(x, y, text, wrap=True, horizontalalignment='center', fontsize=16)
+
 def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     fig = plt.figure(figsize=(16, 16))
 
@@ -154,32 +157,26 @@ def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
 
     plt.xlabel('Month', fontsize=20)
     plt.ylabel('Precip Bias (")', fontsize=20)
-    # FIXME make this a method since many of the arguments are the same
-    plt.figtext(0.35, 0.85, name + " Raw 1.33-km WRF MAE = " +
-                str(round(metrics.mean_absolute_error(fcst, obs), 3)),
-                wrap=True, horizontalalignment='center', fontsize=16)
-    plt.figtext(0.35, 0.8, name + " Raw 1.33-km WRF MSE = " +
-                str(round(metrics.mean_squared_error(fcst, obs), 3)),
-                wrap=True, horizontalalignment='center', fontsize=16)
-    plt.figtext(0.35, 0.75, name + " Raw 1.33-km WRF RMSE = " +
-                str(round(np.sqrt(metrics.mean_absolute_error(fcst, obs)), 3)),
-                wrap=True, horizontalalignment='center', fontsize=16)
-    plt.figtext(0.65, 0.85, name + " BC 1.33-km WRF MAE = " +
-                str(round(metrics.mean_absolute_error(bc_fcst, obs), 3)),
-                wrap=True, horizontalalignment='center', fontsize=16)
+    
+    add_plot_text(plt, 0.35, 0.85,
+                  name + " Raw 1.33-km WRF MAE = " + str(round(metrics.mean_absolute_error(fcst, obs), 3)))
+    add_plot_text(plt, 0.35, 0.8,
+                  name + " Raw 1.33-km WRF MSE = " + str(round(metrics.mean_squared_error(fcst, obs), 3)))
+    add_plot_text(plt, 0.35, 0.75,
+                  name + " Raw 1.33-km WRF RMSE = " + str(round(np.sqrt(metrics.mean_absolute_error(fcst, obs)), 3)))
+    add_plot_text(plt, 0.65, 0.85,
+                  name + " BC 1.33-km WRF MAE = " + str(round(metrics.mean_absolute_error(bc_fcst, obs), 3)))
     # FIXME get rid of the magic range
-    plt.figtext(0.35, 0.15, name + " Mean Raw 1.33-km WRF Bias = " +
-                str(round(raw_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)),
-                wrap=True, horizontalalignment='center', fontsize=16)
-    plt.figtext(0.65, 0.8, name + " BC 1.33-km WRF MSE = " +
-                str(round(metrics.mean_squared_error(bc_fcst, obs), 3)),
-                wrap=True, horizontalalignment='center', fontsize=16)
-    plt.figtext(0.65, 0.75, name + " BC 1.33-km WRF RMSE = " +
-                str(round(np.sqrt(metrics.mean_absolute_error(bc_fcst, obs)), 3)),
-                wrap=True, horizontalalignment='center', fontsize=16)
-    plt.figtext(0.65, 0.15, name + " Mean BC WRF 1.33-km Bias = " +
-                str(round(bc_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)),
-                wrap=True, horizontalalignment='center', fontsize=16)
+    add_plot_text(plt, 0.35, 0.15,
+                  name + " Mean Raw 1.33-km WRF Bias = " +
+                  str(round(raw_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)))
+    add_plot_text(plt, 0.65, 0.8,
+                  name + " BC 1.33-km WRF MSE = " + str(round(metrics.mean_squared_error(bc_fcst, obs), 3)))
+    add_plot_text(plt, 0.65, 0.75,
+                  name + " BC 1.33-km WRF RMSE = " + str(round(np.sqrt(metrics.mean_absolute_error(bc_fcst, obs)), 3)))
+    add_plot_text(plt, 0.65, 0.15,
+                  name + " Mean BC WRF 1.33-km Bias = " +
+                  str(round(bc_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)))
 
     plt.legend(fontsize=16)
     plt.title("STN = " + name + " FH12-36 Forecast Comparison: 1.33-km WRF and BC WRF Precip Bias", fontsize=20)

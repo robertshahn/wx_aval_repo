@@ -27,12 +27,20 @@ pd.options.display.float_format = '{:,.2f}'.format
 # Close all previous plots
 plt.close("all")
 
+# Global Constants
 # TODO Useful for testing, but perhaps remove this for prod.
 DEFAULT_CSV_NAME = 'BiasCorrectionData.csv'
+
 DEFAULT_START_DATE = 20181211
 DEFAULT_END_DATE = 20190430
+
 DEFAULT_STATIONS = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
+
+DEFAULT_LINES_TO_PRINT = ['RB', 'BB', 'CF']
+LINES_TO_PRINT_OPTIONS = {'RB', 'BB', 'BF', 'F', 'O', 'CF'}
+
 TAU = 30
+
 #TODO Robert, will the column headers always be SSSD where SSS is the station identifier and D is [1,4]?
 SUFFIXES_TO_DROP = ['2', '3']
 
@@ -146,13 +154,20 @@ def add_plot_text(plt, x, y, text):
 def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
     fig = plt.figure(figsize=(16, 16))
 
-    # FIXME make what gets printed a command line argument
-    raw_bias.plot(figsize=(20, 10), fontsize=20, color="green")
-    bc_bias.plot(figsize=(20, 10), fontsize=20, color="red")
-    #     bc_fcst.plot(figsize=(20,10), fontsize=20, color="blue")
-    #     fcst.plot(figsize=(20,10), fontsize=20, color="magenta")
-    #     obs.plot(figsize=(20,10), fontsize=20, color="orange")
-    cf.plot(figsize=(20, 10), fontsize=20, color="black")
+    # Print whichever series were specified
+    for val in args.lines_to_print:
+        if val == 'RB':
+            raw_bias.plot(figsize=(20, 10), fontsize=20, color="green")
+        elif val == 'BB':
+            bc_bias.plot(figsize=(20, 10), fontsize=20, color="red")
+        elif val == 'BF':
+            bc_fcst.plot(figsize=(20,10), fontsize=20, color="blue")
+        elif val == 'F':
+            fcst.plot(figsize=(20,10), fontsize=20, color="magenta")
+        elif val == 'O':
+            obs.plot(figsize=(20,10), fontsize=20, color="orange")
+        elif val == 'CF':
+            cf.plot(figsize=(20, 10), fontsize=20, color="black")
 
     plt.xlabel('Month', fontsize=20)
     plt.ylabel('Precip Bias (")', fontsize=20)
@@ -197,11 +212,11 @@ def configure_script():
     parser = argparse.ArgumentParser(description='Generate correction factor for NWAC wx data.')
 
     parser.add_argument('-s', action='store', type=int,
-                        help="start date, defaults to {}".format(DEFAULT_START_DATE),
+                        help="start date; defaults to {}".format(DEFAULT_START_DATE),
                         default=DEFAULT_START_DATE,
                         dest='start')
     parser.add_argument('-e', action='store', type=int,
-                        help="end date, defaults to {}".format(DEFAULT_END_DATE),
+                        help="end date; defaults to {}".format(DEFAULT_END_DATE),
                         default=DEFAULT_END_DATE,
                         dest='end')
     parser.add_argument('-i', '--input', action='store',
@@ -220,6 +235,12 @@ def configure_script():
     parser.add_argument('-p', action='store_true',
                         help="Generate plots for data",
                         dest='make_plots')
+    parser.add_argument('-l', action='store',
+                        help="Comma-separated list of series to plot.  Options are: 'RB' (raw bias), " +
+                             "'BB' (bias-corrected bias), 'BF' (bias-corrected forecast), 'F' (forecast), " +
+                             "'O' (observation), and 'CF' (correction factor); defaults to '{}'.".format(
+                                 ",".join(DEFAULT_LINES_TO_PRINT)),
+                        dest='lines_to_print')
     parser.add_argument('stations', metavar='S', action='store',
                         help="Wx stations for which to conduct analysis.  Must match CSV headers.  Possible values: " +
                         " ".join(DEFAULT_STATIONS) + ".",
@@ -240,6 +261,24 @@ def configure_script():
     # Check to make sure the output directory exists; if not, make it.
     if not os.path.exists(args.outdir):
         os.mkdir(args.outdir)
+
+    # If we're printing plots, figure out which lines we need to print, but first make sure we provided sensible
+    # command line argumens
+    if args.lines_to_print != None:
+        if args.make_plots == False:
+            sys.stderr.write("Specified which series to print in the plot, but didn't specify to generate plots with " +
+                             "'-p' option.\n")
+            exit(1)
+        args.lines_to_print = args.lines_to_print.split(',')
+    else:
+        args.lines_to_print = DEFAULT_LINES_TO_PRINT
+    # Make sure we only specified valid values
+    if len(set(args.lines_to_print) - LINES_TO_PRINT_OPTIONS) != 0:
+        sys.stderr.write("Specified invalid entry for '-l' flag.  Input: {input}; Valid values: {pos_vals}\n".format(
+            input=",".join(args.lines_to_print),
+            pos_vals=",".join(LINES_TO_PRINT_OPTIONS)
+        ))
+        exit(1)
 
     # Get the stations for which we'll do the analysis.
     if len(args.stations) == 0:

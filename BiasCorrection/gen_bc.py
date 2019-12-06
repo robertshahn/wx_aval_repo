@@ -143,7 +143,7 @@ def gen_station_cf(name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, arg
 def add_plot_text(plt, x, y, text):
     plt.figtext(x, y, text, wrap=True, horizontalalignment='center', fontsize=16)
 
-def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
+def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
     fig = plt.figure(figsize=(16, 16))
 
     # FIXME make what gets printed a command line argument
@@ -180,8 +180,8 @@ def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     plt.legend(fontsize=16)
     plt.title("STN = " + name + " FH12-36 Forecast Comparison: 1.33-km WRF and BC WRF Precip Bias", fontsize=20)
 
-    # FIXME Make showing the plot optional
-    plt.show()
+    if not args.silence:
+        plt.show()
 
     # save the plot to the output directory
     fig.savefig(outdir + '/' + name + '--WRF_vs_BCWRF.png', dpi=180)
@@ -212,10 +212,11 @@ def configure_script():
                         default=os.path.join(proj_dir, 'outdir'),
                         dest='outdir')
     parser.add_argument('-S', action='store_true',
-                        help="Silence daily correction factor calculations per station.  Otherwise, output is: " +
+                        help="Silence output, i.e., daily correction factor calculations per station and plots " +
+                        "(if we're generating plots).  Otherwise, daily text output is: " +
                         "<date> <station name> <fcst> <obs> <cf> <fcst w/ cf>",
                         dest='silence')
-    parser.add_argument('-P', action='store_true',
+    parser.add_argument('-p', action='store_true',
                         help="Generate plots for data",
                         dest='make_plots')
     parser.add_argument('stations', metavar='S', action='store',
@@ -269,7 +270,7 @@ def main():
 
         # Make plots if so specified.
         if args.make_plots:
-            make_plots(args.outdir, station_name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
+            make_plots(args.outdir, station_name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY

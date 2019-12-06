@@ -89,7 +89,7 @@ def prep_station_dataframe(dataframe, name):
 
     return stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias
 
-def gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
+def gen_station_cf(name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
     cf.iat[0] = 1.0
     for i in range(len(stat_df) - 1):
         # Get some handy nicknames to make the code more readable...
@@ -129,14 +129,16 @@ def gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
         raw_bias.iat[i] = fcst_today - obs_today
 
         # print out a message
-        # FIXME make printing of this optional, and make the output more concise
-        print("date is {date}; fcst is {fcst}; obs is {obs}; cf is {cf}; bc_fcst is {bc_fcst}".format(
-            date=stat_df.index.date[i],
-            fcst=str(round(fcst_today, 2)),
-            obs=str(round(obs_today, 2)),
-            cf=str(round(cf_today, 2)),
-            bc_fcst=str(round(bc_fcst.iat[i], 2))
-        ))
+        if not args.silence:
+            # TODO format date as YYYYMMDD?
+            print("{date} {station} {fcst} {obs} {cf} {bc_fcst}".format(
+                date=stat_df.index.date[i],
+                station=name,
+                fcst=str(round(fcst_today, 2)),
+                obs=str(round(obs_today, 2)),
+                cf=str(round(cf_today, 2)),
+                bc_fcst=str(round(bc_fcst.iat[i], 2))
+            ))
 
 def add_plot_text(plt, x, y, text):
     plt.figtext(x, y, text, wrap=True, horizontalalignment='center', fontsize=16)
@@ -209,6 +211,10 @@ def configure_script():
                         help="Path to output directory.",
                         default=os.path.join(proj_dir, 'outdir'),
                         dest='outdir')
+    parser.add_argument('-S', action='store_true',
+                        help="Silence daily correction factor calculations per station.  Otherwise, output is: " +
+                        "<date> <station name> <fcst> <obs> <cf> <fcst w/ cf>",
+                        dest='silence')
     parser.add_argument('-P', action='store_true',
                         help="Generate plots for data",
                         dest='make_plots')
@@ -247,22 +253,23 @@ def main():
     # Read in the data file, selecting the subset of the data we'd like
     dataframe = read_csv_data(args.input_file_path, args.start, args.end)
 
-    for name in args.stations:
+    for station_name in args.stations:
         # Get a copy of the station data we'll be editing
-        stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias = prep_station_dataframe(dataframe, name)
+        stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias = \
+            prep_station_dataframe(dataframe, station_name)
 
         # Generate the correction factor for this station
-        gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
+        gen_station_cf(station_name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args)
 
         # Write the bias-corrected forecast and other measures to a file, i.e., dump stat_df
         # TODO make this optional?
-        a = open(os.path.join(args.outdir, name + '_precip.txt'), 'w')
+        a = open(os.path.join(args.outdir, station_name + '_precip.txt'), 'w')
         a.write(str(stat_df))
         a.close()
 
         # Make plots if so specified.
         if args.make_plots:
-            make_plots(args.outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
+            make_plots(args.outdir, station_name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY

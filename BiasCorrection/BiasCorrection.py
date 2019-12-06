@@ -120,7 +120,7 @@ for name in NAMES:
         else:
             # Update the correction factor for tomorrow.
             cf.iat[i + 1] = (((TAU - 1) / TAU) * cf_today) + ((1 / TAU) * (fcst_today / obs_today))
-            
+
             # Avoid large jumps in the correction factor:
             # If the CF increases by more than 50% and the sum of the forecast and observed precip is less than 1, then
             # normalize (currently there is an error in this).
@@ -131,13 +131,13 @@ for name in NAMES:
                 #TODO fix this normalization so it does something mathematically sound
                 cf.iat[i + 1] = cf_today + (cf_tmrw - cf_today) / (cf_tmrw + cf_today)
 
-        # Update the
+        # Update the bias-corrected forecast and measures of bias
         bc_fcst.iat[i] = fcst_today / cf_today
         bc_bias.iat[i] = bc_fcst.iat[i] - obs_today
         raw_bias.iat[i] = fcst_today - obs_today
 
-        print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst.iat[i], 2)) + "; obs is " + str(
-            round(obs.iat[i], 2)) + "; cf is " + str(round(cf.iat[i], 2)) + \
+        print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst_today, 2)) + "; obs is " + str(
+            round(obs_today, 2)) + "; cf is " + str(round(cf_today, 2)) + \
               "; bc_fcst is " + str(round(bc_fcst.iat[i], 2)))
 
         a = open((OUTPUT_DIR + '/' + name + '_precip.txt'), 'w')

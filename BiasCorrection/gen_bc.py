@@ -41,12 +41,13 @@ LINES_TO_PRINT_OPTIONS = {'RB', 'BB', 'BF', 'F', 'O', 'CF'}
 
 TAU = 30
 
-#TODO Robert, will the column headers always be SSSD where SSS is the station identifier and D is [1,4]?
+# TODO Robert, will the column headers always be SSSD where SSS is the station identifier and D is [1,4]?
 SUFFIXES_TO_DROP = ['2', '3']
 
 # ---------------------------------------------------------------------------------------------------------------------
 # METHODS
 # ---------------------------------------------------------------------------------------------------------------------
+
 
 def read_csv_data(file_name, start_date, end_date):
     # read in the CSV data
@@ -55,7 +56,7 @@ def read_csv_data(file_name, start_date, end_date):
     # filter based on date
     dataframe['Date'] = pd.to_datetime(dataframe['Date'])
     dataframe = dataframe.set_index('Date')
-    dataframe= dataframe.loc[start_date:end_date]
+    dataframe = dataframe.loc[start_date:end_date]
 
     # Figure out which columns we'll be dropping
     cols_to_drop = []
@@ -64,6 +65,7 @@ def read_csv_data(file_name, start_date, end_date):
     dataframe.drop(cols_to_drop, inplace=True, axis='columns')
 
     return dataframe
+
 
 def prep_station_dataframe(dataframe, name):
     # Get a copy of the data so we can easily output it
@@ -97,6 +99,7 @@ def prep_station_dataframe(dataframe, name):
 
     return stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias
 
+
 def gen_station_cf(name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
     cf.iat[0] = 1.0
     for i in range(len(stat_df) - 1):
@@ -127,7 +130,7 @@ def gen_station_cf(name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, arg
             # TODO make '1.5' a configurable global variable
             # TODO this only prevents increases in the CF, what about decreases?
             cf_next = cf.iat[i + 1]
-            if (cf_next / cf_cur > 1.5 and (fcst_cur + obs_cur) < 1):
+            if cf_next / cf_cur > 1.5 and (fcst_cur + obs_cur) < 1:
                 # TODO fix this normalization so it does something mathematically sound (a logarithm?)
                 cf.iat[i + 1] = cf_cur + (cf_next - cf_cur) / (cf_next + cf_cur)
 
@@ -148,8 +151,10 @@ def gen_station_cf(name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, arg
                 bc_fcst=str(round(bc_fcst.iat[i], 2))
             ))
 
-def add_plot_text(plt, x, y, text):
-    plt.figtext(x, y, text, wrap=True, horizontalalignment='center', fontsize=16)
+
+def add_plot_text(cur_plt, x, y, text):
+    cur_plt.figtext(x, y, text, wrap=True, horizontalalignment='center', fontsize=16)
+
 
 def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
     fig = plt.figure(figsize=(16, 16))
@@ -161,11 +166,11 @@ def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
         elif val == 'BB':
             bc_bias.plot(figsize=(20, 10), fontsize=20, color="red")
         elif val == 'BF':
-            bc_fcst.plot(figsize=(20,10), fontsize=20, color="blue")
+            bc_fcst.plot(figsize=(20, 10), fontsize=20, color="blue")
         elif val == 'F':
-            fcst.plot(figsize=(20,10), fontsize=20, color="magenta")
+            fcst.plot(figsize=(20, 10), fontsize=20, color="magenta")
         elif val == 'O':
-            obs.plot(figsize=(20,10), fontsize=20, color="orange")
+            obs.plot(figsize=(20, 10), fontsize=20, color="orange")
         elif val == 'CF':
             cf.plot(figsize=(20, 10), fontsize=20, color="black")
 
@@ -202,6 +207,7 @@ def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
     # save the plot to the output directory
     fig.savefig(outdir + '/' + name + '--WRF_vs_BCWRF.png', dpi=180)
     plt.close()
+
 
 def configure_script():
     # Read in the config file
@@ -263,9 +269,9 @@ def configure_script():
         os.mkdir(args.outdir)
 
     # If we're printing plots, figure out which lines we need to print, but first make sure we provided sensible
-    # command line argumens
-    if args.lines_to_print != None:
-        if args.make_plots == False:
+    # command line arguments
+    if args.lines_to_print is not None:
+        if not args.make_plots:
             sys.stderr.write("Specified which series to print in the plot, but didn't specify to generate plots with " +
                              "'-p' option.\n")
             exit(1)
@@ -292,6 +298,7 @@ def configure_script():
             exit(1)
 
     return args
+
 
 def main():
     args = configure_script()
@@ -320,5 +327,7 @@ def main():
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY
 # ---------------------------------------------------------------------------------------------------------------------
+
+
 if __name__ == "__main__":
     main()

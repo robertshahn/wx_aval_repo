@@ -157,6 +157,7 @@ def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
     plt.xlabel('Month', fontsize=20)
     plt.ylabel('Precip Bias (")', fontsize=20)
 
+    # FIXME Handle exception when NaN's appear in data munched by metrics methods
     add_plot_text(plt, 0.35, 0.85,
                   name + " Raw 1.33-km WRF MAE = " + str(round(metrics.mean_absolute_error(fcst, obs), 3)))
     add_plot_text(plt, 0.35, 0.8,

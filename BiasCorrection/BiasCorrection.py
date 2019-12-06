@@ -20,8 +20,7 @@ config.read('config.ini')
 PROJ_DIR = config['DEFAULT']['PROJECT_DIR']
 
 # pandas settings for outputting numerical data
-# TODO Robert, why are these set this way?  Does this make the output play nicely with Jupyter?
-# pd.set_option('display.height', 1000)
+# These allow us to just an entire DataFrame to a file.
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)

@@ -235,7 +235,7 @@ def main():
 
         # Write the bias-corrected forecast and other measures to a file, i.e., dump stat_df
         # TODO make this optional?
-        a = open((args.outdir + '/' + name + '_precip.txt'), 'w')
+        a = open(os.path.join(args.outdir, name + '_precip.txt'), 'w')
         a.write(str(stat_df))
         a.close()
 

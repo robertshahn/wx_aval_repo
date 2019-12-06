@@ -161,25 +161,25 @@ for name in NAMES:
     plt.xlabel('Month', fontsize=20)
     plt.ylabel('Precip Bias (")', fontsize=20)
     plt.figtext(0.35, 0.85, name + " Raw 1.33-km WRF MAE = " + str(
-        round(metrics.mean_absolute_error(df2[name + '4'], df2[name + '1']), 3)), wrap=True,
+        round(metrics.mean_absolute_error(fcst, obs), 3)), wrap=True,
                 horizontalalignment='center', fontsize=16)
     plt.figtext(0.35, 0.8, name + " Raw 1.33-km WRF MSE = " + str(
-        round(metrics.mean_squared_error(df2[name + '4'], df2[name + '1']), 3)), wrap=True,
+        round(metrics.mean_squared_error(fcst, obs), 3)), wrap=True,
                 horizontalalignment='center', fontsize=16)
     plt.figtext(0.35, 0.75, name + " Raw 1.33-km WRF RMSE = " + str(
-        round(np.sqrt(metrics.mean_absolute_error(df2[name + '4'], df2[name + '1'])), 3)),
+        round(np.sqrt(metrics.mean_absolute_error(fcst, obs)), 3)),
                 wrap=True, horizontalalignment='center', fontsize=16)
     plt.figtext(0.65, 0.85, name + " BC 1.33-km WRF MAE = " + str(
-        round(metrics.mean_absolute_error(df2[name + '_BC'], df2[name + '1']), 3)), wrap=True,
+        round(metrics.mean_absolute_error(bc_fcst, obs), 3)), wrap=True,
                 horizontalalignment='center', fontsize=16)
     plt.figtext(0.35, 0.15, name + " Mean Raw 1.33-km WRF Bias = " + str(
         round(raw_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)), wrap=True,
                 horizontalalignment='center', fontsize=16)
     plt.figtext(0.65, 0.8, name + " BC 1.33-km WRF MSE = " + str(
-        round(metrics.mean_squared_error(df2[name + '_BC'], df2[name + '1']), 3)), wrap=True,
+        round(metrics.mean_squared_error(bc_fcst, obs), 3)), wrap=True,
                 horizontalalignment='center', fontsize=16)
     plt.figtext(0.65, 0.75, name + " BC 1.33-km WRF RMSE = " + str(
-        round(np.sqrt(metrics.mean_absolute_error(df2[name + '_BC'], df2[name + '1'])), 3)),
+        round(np.sqrt(metrics.mean_absolute_error(bc_fcst, obs)), 3)),
                 wrap=True, horizontalalignment='center', fontsize=16)
     plt.figtext(0.65, 0.15, name + " Mean BC WRF 1.33-km Bias = " + str(
         round(bc_bias.loc['2018-12-25 00:00:00':'2019-05-13 00:00:00'].mean(), 3)), wrap=True,
@@ -188,6 +188,7 @@ for name in NAMES:
     plt.legend(fontsize=16)
     plt.title("STN = " + name + " FH12-36 Forecast Comparison: 1.33-km WRF and BC WRF Precip Bias", fontsize=20)
     plt.show()
-    fig.savefig(PROJ_DIR + '/STN=' + name + '_WRF_vs_BCWRF.png', dpi=180)
+
+    fig.savefig(OUTPUT_DIR + '/' + name + '--WRF_vs_BCWRF.png', dpi=180)
     plt.close()
 

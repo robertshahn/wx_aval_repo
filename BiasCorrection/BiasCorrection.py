@@ -108,16 +108,22 @@ for name in NAMES:
 
     cf.iloc[0] = 1.0
     for i in range(len(loc_dataframe) - 1):
-        if obs.iloc[i] <= 0.01 or np.isnan(obs.iloc[i]) or np.isnan(fcst.iloc[i]):
-            cf.iloc[i + 1] = cf.iloc[i]
+        # Get some handy nicknames to make the code more readable...
+        obs_today = obs.iloc[i]
+        fcst_today = fcst.iloc[i]
+        cf_today = cf.iloc[i]
+
+        if obs_today <= 0.01 or np.isnan(obs_today) or np.isnan(fcst_today):
+            cf.iloc[i + 1] = cf_today
         else:
-            cf.iloc[i + 1] = ((TAU - 1) / TAU) * cf.iloc[i] + (1 / TAU) * (fcst.iloc[i] / obs.iloc[i])
+            cf.iloc[i + 1] = ((TAU - 1) / TAU) * cf_today + (1 / TAU) * (fcst_today / obs_today)
             # code to avoid large jumps in cf
-            if (abs((cf.iloc[i + 1] / cf.iloc[i])) > 1.5 and (fcst.iloc[i] + obs.iloc[i]) < 1):
-                cf.iloc[i + 1] = cf.iloc[i] + (cf.iloc[i + 1] - cf.iloc[i]) / (cf.iloc[i + 1] + cf.iloc[i])
-        bc_fcst.iloc[i] = fcst.iloc[i] / cf.iloc[i]
-        bc_bias.iloc[i] = bc_fcst.iloc[i] - obs.iloc[i]
-        raw_bias.iloc[i] = fcst.iloc[i] - obs.iloc[i]
+            if (abs((cf.iloc[i + 1] / cf_today)) > 1.5 and (fcst_today + obs_today) < 1):
+                cf.iloc[i + 1] = cf_today + (cf.iloc[i + 1] - cf_today) / (cf.iloc[i + 1] + cf_today)
+
+        bc_fcst.iloc[i] = fcst_today / cf_today
+        bc_bias.iloc[i] = bc_fcst.iloc[i] - obs_today
+        raw_bias.iloc[i] = fcst_today - obs_today
 
         print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst.iloc[i], 2)) + "; obs is " + str(
             round(obs.iloc[i], 2)) + "; cf is " + str(round(cf.iloc[i], 2)) + \

@@ -220,6 +220,7 @@ def configure_script():
     args = parser.parse_args()
 
     # Get our state and end datetimes
+    #FIXME make sure start < end
     args.start = dt.datetime.strptime(str(args.start), "%Y%m%d").strftime("%Y-%m-%d")
     args.end = dt.datetime.strptime(str(args.end), "%Y%m%d").strftime("%Y-%m-%d")
 

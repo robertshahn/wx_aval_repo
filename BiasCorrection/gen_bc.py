@@ -4,6 +4,7 @@
 # IMPORTS
 # ---------------------------------------------------------------------------------------------------------------------
 import os.path
+import argparse
 import configparser
 import numpy as np
 import pandas as pd
@@ -29,18 +30,19 @@ pd.options.display.float_format = '{:,.2f}'.format
 # Close all previous plots
 plt.close("all")
 
-# TODO Make this a command line argument
-MAKE_PLOTS = False
+# TODO Useful for testing, but perhaps remove this for prod.
+DEFAULT_CSV_NAME = 'BiasCorrectionData.csv'
+
+# Read in the config file
+config = configparser.ConfigParser()
+config.read('config.ini')
+PROJ_DIR = config['DEFAULT']['PROJECT_DIR']
 
 # TODO Make this a command line argument
 # Check to make sure the directory exists; if not, make it.
 OUTPUT_DIR = os.path.join(PROJ_DIR, 'outdir')
 if not os.path.exists(OUTPUT_DIR):
     os.mkdir(OUTPUT_DIR)
-
-# Get the path to the data file
-# TODO Make this a command line argument
-DATA_FILE = os.path.join(PROJ_DIR, 'BiasCorrectionData.csv')
 
 # TODO Auto-detect this?  We're just getting '__NAME from NAMES__[1,4]' from the csv file right now.
 COLUMNS_TO_DROP = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',
@@ -53,8 +55,8 @@ TAU = 30
 # METHODS
 # ---------------------------------------------------------------------------------------------------------------------
 
-def read_csv_data():
-    dataframe = pd.read_csv(DATA_FILE)
+def read_csv_data(file_name):
+    dataframe = pd.read_csv(file_name)
     # dataframe.columns = dataframe.columns.str.strip()
     # TODO make this a commandline argument; currently selecting from 20181211 to 20190430
     dataframe = dataframe.iloc[16:157, :]
@@ -195,14 +197,31 @@ def make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias):
     fig.savefig(OUTPUT_DIR + '/' + name + '--WRF_vs_BCWRF.png', dpi=180)
     plt.close()
 
+def configure_script():
+    parser = argparse.ArgumentParser(description='Generate correction factor for NWAC wx data.')
+
+    parser.add_argument('-P', '--Plots', action='store_true',
+                        help="Generate plots for data",
+                        dest='make_plots')
+    parser.add_argument('-i', '--input', action='store',
+                        help="Path to input CSV file.",
+                        default=os.path.join(PROJ_DIR, DEFAULT_CSV_NAME),
+                        dest='input_file_path')
+
+    args = parser.parse_args()
+
+    return args
+
 def main():
+    args = configure_script()
+
     # Read in the data file, selecting the subset of the data we'd like
-    dataframe = read_csv_data()
+    dataframe = read_csv_data(args.input_file_path)
 
     for name in NAMES:
         # Get a copy of the station data we'll be editing
         stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias = prep_station_dataframe(dataframe, name)
-        
+
         # Generate the correction factor for this station
         gen_station_cf(stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
 
@@ -213,7 +232,7 @@ def main():
         a.close()
 
         # Make plots if so specified.
-        if MAKE_PLOTS:
+        if args.make_plots:
             make_plots(name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias)
 
 # ---------------------------------------------------------------------------------------------------------------------

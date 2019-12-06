@@ -106,20 +106,20 @@ for name in NAMES:
     obs = loc_dataframe[name + '1']
     fcst = loc_dataframe[name + '4']
 
-    cf.iloc[0] = 1.0
+    cf.iat[0] = 1.0
     for i in range(len(loc_dataframe) - 1):
         # Get some handy nicknames to make the code more readable...
-        obs_today = obs.iloc[i]
-        fcst_today = fcst.iloc[i]
-        cf_today = cf.iloc[i]
+        obs_today = obs.iat[i]
+        fcst_today = fcst.iat[i]
+        cf_today = cf.iat[i]
 
         # If the observation is (nearly) zero or we have an error flag for the observation or forecast,
         # set tomorrow's correction factor to today's.
         if obs_today <= 0.01 or np.isnan(obs_today) or np.isnan(fcst_today):
-            cf.iloc[i + 1] = cf_today
+            cf.iat[i + 1] = cf_today
         else:
             # Update the correction factor for tomorrow.
-            cf.iloc[i + 1] = ((TAU - 1) / TAU) * cf_today + (1 / TAU) * (fcst_today / obs_today)
+            cf.iat[i + 1] = ((TAU - 1) / TAU) * cf_today + (1 / TAU) * (fcst_today / obs_today)
             # Avoid large jumps in the correction factor:
 
             # If the CF increases by more than 50% and the sum of the forecast and observed precip is less than 1, then
@@ -129,16 +129,16 @@ for name in NAMES:
             cf_tmrw = cf.iat[i + 1]
             if (abs((cf_tmrw / cf_today)) > 1.5 and (fcst_today + obs_today) < 1):
                 #TODO fix this normalization so it does something mathematically sound
-                cf.iloc[i + 1] = cf_today + (cf_tmrw - cf_today) / (cf_tmrw + cf_today)
+                cf.iat[i + 1] = cf_today + (cf_tmrw - cf_today) / (cf_tmrw + cf_today)
 
         # Update the
-        bc_fcst.iloc[i] = fcst_today / cf_today
-        bc_bias.iloc[i] = bc_fcst.iloc[i] - obs_today
-        raw_bias.iloc[i] = fcst_today - obs_today
+        bc_fcst.iat[i] = fcst_today / cf_today
+        bc_bias.iat[i] = bc_fcst.iat[i] - obs_today
+        raw_bias.iat[i] = fcst_today - obs_today
 
-        print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst.iloc[i], 2)) + "; obs is " + str(
-            round(obs.iloc[i], 2)) + "; cf is " + str(round(cf.iloc[i], 2)) + \
-              "; bc_fcst is " + str(round(bc_fcst.iloc[i], 2)))
+        print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst.iat[i], 2)) + "; obs is " + str(
+            round(obs.iat[i], 2)) + "; cf is " + str(round(cf.iat[i], 2)) + \
+              "; bc_fcst is " + str(round(bc_fcst.iat[i], 2)))
 
         a = open((OUTPUT_DIR + '/' + name + '_precip.txt'), 'w')
         a.write(str(loc_dataframe))

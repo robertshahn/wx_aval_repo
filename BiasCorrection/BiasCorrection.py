@@ -3,19 +3,12 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------------------------------------------------------------------
-# TODO organize these
-import datetime
-from datetime import date
-import seaborn as sns
-import copy
-# from datetime import date_range
+import os.path
+import configparser
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn import metrics
-import os
-import os.path
-import configparser
 
 # ---------------------------------------------------------------------------------------------------------------------
 # CONFIGURATION and INITIALIZATION

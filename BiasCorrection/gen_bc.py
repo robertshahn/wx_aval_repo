@@ -3,9 +3,10 @@
 # ---------------------------------------------------------------------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------------------------------------------------------------------
-import os.path
 import argparse
 import configparser
+import os.path
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -27,13 +28,12 @@ plt.close("all")
 
 # TODO Useful for testing, but perhaps remove this for prod.
 DEFAULT_CSV_NAME = 'BiasCorrectionData.csv'
+DEFAULT_STATIONS = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
+TAU = 30
 
 # FIXME Auto-detect this?  We're just getting '__NAME from NAMES__[1,4]' from the csv file right now.
 COLUMNS_TO_DROP = ['HUR2', 'MTB2', 'WAP2', 'STV2', 'SNO2', 'LVN2', 'MIS2', 'CMT2', 'PAR2', 'WHP2', 'TML2', 'MHM2',
                    'HUR3', 'MTB3', 'WAP3', 'STV3', 'SNO3', 'LVN3', 'MIS3', 'CMT3', 'PAR3', 'WHP3', 'TML3', 'MHM3']
-NAMES = ['HUR', 'MTB', 'WAP', 'STV', 'SNO', 'LVN', 'MIS', 'CMT', 'PAR', 'WHP', 'TML', 'MHM']
-
-TAU = 30
 
 # ---------------------------------------------------------------------------------------------------------------------
 # METHODS
@@ -197,12 +197,25 @@ def configure_script():
                         help="Path to output directory.",
                         default=os.path.join(proj_dir, 'outdir'),
                         dest='outdir')
+    parser.add_argument('stations', metavar='S', action='store',
+                        help="Wx stations for which to conduct analysis.  Must match CSV headers.",
+                        nargs='*')
 
     args = parser.parse_args()
 
     # Check to make sure the output directory exists; if not, make it.
     if not os.path.exists(args.outdir):
         os.mkdir(args.outdir)
+
+    if len(args.stations) == 0:
+        args.stations = DEFAULT_STATIONS
+    else:
+        input_stations = set(args.stations)
+        # Make sure we got station names that we know about
+        residual_stations = input_stations - set(DEFAULT_STATIONS)
+        if len(residual_stations) != 0:
+            sys.stderr.write("Invalid station names specified: {}\n".format(" ".join(residual_stations)))
+            exit(1)
 
     return args
 
@@ -212,7 +225,7 @@ def main():
     # Read in the data file, selecting the subset of the data we'd like
     dataframe = read_csv_data(args.input_file_path)
 
-    for name in NAMES:
+    for name in args.stations:
         # Get a copy of the station data we'll be editing
         stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias = prep_station_dataframe(dataframe, name)
 

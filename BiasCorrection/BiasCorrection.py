@@ -113,14 +113,25 @@ for name in NAMES:
         fcst_today = fcst.iloc[i]
         cf_today = cf.iloc[i]
 
+        # If the observation is (nearly) zero or we have an error flag for the observation or forecast,
+        # set tomorrow's correction factor to today's.
         if obs_today <= 0.01 or np.isnan(obs_today) or np.isnan(fcst_today):
             cf.iloc[i + 1] = cf_today
         else:
+            # Update the correction factor for tomorrow.
             cf.iloc[i + 1] = ((TAU - 1) / TAU) * cf_today + (1 / TAU) * (fcst_today / obs_today)
-            # code to avoid large jumps in cf
-            if (abs((cf.iloc[i + 1] / cf_today)) > 1.5 and (fcst_today + obs_today) < 1):
-                cf.iloc[i + 1] = cf_today + (cf.iloc[i + 1] - cf_today) / (cf.iloc[i + 1] + cf_today)
+            # Avoid large jumps in the correction factor:
 
+            # If the CF increases by more than 50% and the sum of the forecast and observed precip is less than 1, then
+            # normalize (currently there is an error in this).
+            # TODO make '1.5' a configurable global variable
+            # TODO this only prevents increases in the CF, what about decreases?
+            cf_tmrw = cf.iat[i + 1]
+            if (abs((cf_tmrw / cf_today)) > 1.5 and (fcst_today + obs_today) < 1):
+                #TODO fix this normalization so it does something mathematically sound
+                cf.iloc[i + 1] = cf_today + (cf_tmrw - cf_today) / (cf_tmrw + cf_today)
+
+        # Update the
         bc_fcst.iloc[i] = fcst_today / cf_today
         bc_bias.iloc[i] = bc_fcst.iloc[i] - obs_today
         raw_bias.iloc[i] = fcst_today - obs_today

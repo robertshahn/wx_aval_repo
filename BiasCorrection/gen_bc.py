@@ -198,7 +198,8 @@ def configure_script():
                         default=os.path.join(proj_dir, 'outdir'),
                         dest='outdir')
     parser.add_argument('stations', metavar='S', action='store',
-                        help="Wx stations for which to conduct analysis.  Must match CSV headers.",
+                        help="Wx stations for which to conduct analysis.  Must match CSV headers.  Possible values: " +
+                        " ".join(DEFAULT_STATIONS) + ".",
                         nargs='*')
 
     args = parser.parse_args()

@@ -115,6 +115,14 @@ for name in NAMES:
             cf.iat[i + 1] = cf_today
         else:
             # Update the correction factor for tomorrow.
+            #
+            # This formula is based on "Reliable probabilistic forecasts from an ensemble reservoir inflow
+            # forecasting system" by Bourdin, Nipen, and Stull:
+            # https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1002/2014WR015462.
+            #
+            # This formula is equivalent to a geometric series of the form:
+            # cf_i = 1 / TAU * SUM(k=[0,infinity))(r^k * a_i-k-1) where
+            # r = (TAU - 1) / TAU and a_x = fcst_x / obs_x
             cf.iat[i + 1] = (((TAU - 1) / TAU) * cf_today) + ((1 / TAU) * (fcst_today / obs_today))
 
             # Avoid large jumps in the correction factor:
@@ -124,7 +132,7 @@ for name in NAMES:
             # TODO this only prevents increases in the CF, what about decreases?
             cf_tmrw = cf.iat[i + 1]
             if (cf_tmrw / cf_today > 1.5 and (fcst_today + obs_today) < 1):
-                #TODO fix this normalization so it does something mathematically sound
+                #TODO fix this normalization so it does something mathematically sound (a logarithm?)
                 cf.iat[i + 1] = cf_today + (cf_tmrw - cf_today) / (cf_tmrw + cf_today)
 
         # Update the bias-corrected forecast and measures of bias

@@ -140,10 +140,17 @@ for name in NAMES:
         bc_bias.iat[i] = bc_fcst.iat[i] - obs_today
         raw_bias.iat[i] = fcst_today - obs_today
 
-        print("date is " + str(dataframe.index.date[i]) + "; fcst is " + str(round(fcst_today, 2)) + "; obs is " + str(
-            round(obs_today, 2)) + "; cf is " + str(round(cf_today, 2)) + \
-              "; bc_fcst is " + str(round(bc_fcst.iat[i], 2)))
+        # print out a message
+        # TODO make printing of this optional, and make the output more concise
+        print("date is {date}; fcst is {fcst}; obs is {obs}; cf is {cf}; bc_fcst is {bc_fcst}".format(
+            date = dataframe.index.date[i],
+            fcst = str(round(fcst_today, 2)),
+            obs = str(round(obs_today, 2)),
+            cf = str(round(cf_today, 2)),
+            bc_fcst = str(round(bc_fcst.iat[i], 2))
+        ))
 
+        # Write the bias-corrected forecast and other measures to a file, i.e., dump loc_dataframe
         a = open((OUTPUT_DIR + '/' + name + '_precip.txt'), 'w')
         a.write(str(loc_dataframe))
         a.close()

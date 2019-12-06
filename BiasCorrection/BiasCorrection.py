@@ -86,6 +86,14 @@ for name in NAMES:
     # Get a copy of the data so we can easily output it
     loc_dataframe = dataframe.filter(regex=name).copy(deep=True)
 
+    # Rename the observation and forecast columns.  Tricky:  Do this first because any references to columns within
+    # the DataFrame will change with the call to rename().
+    obs_lbl = name + '_OBS'
+    fcst_lbl = name + '_FCST'
+    loc_dataframe.rename(columns={name + '1': obs_lbl, name + '4': fcst_lbl}, inplace=True)
+    obs = loc_dataframe[obs_lbl]
+    fcst = loc_dataframe[fcst_lbl]
+
     # Set up the extra columns we need for our math
     cf_lbl = name + '_CF'
     loc_dataframe[cf_lbl] = 0.0
@@ -102,9 +110,6 @@ for name in NAMES:
     bc_bias_lbl = name + '_BC_Bias'
     loc_dataframe[bc_bias_lbl] = 0.0
     bc_bias = loc_dataframe[bc_bias_lbl]
-
-    obs = loc_dataframe[name + '1']
-    fcst = loc_dataframe[name + '4']
 
     cf.iat[0] = 1.0
     for i in range(len(loc_dataframe) - 1):

@@ -68,6 +68,8 @@ def read_csv_data(file_name, start_date, end_date):
 
 
 def prep_station_dataframe(dataframe, name):
+    col_names = dict()
+
     # Get a copy of the data so we can easily output it
     stat_df = dataframe.filter(regex=name).copy(deep=True)
 
@@ -77,30 +79,43 @@ def prep_station_dataframe(dataframe, name):
     obs_lbl = name + '_OBS'
     fcst_lbl = name + '_FCST'
     stat_df.rename(columns={name + '1': obs_lbl, name + '4': fcst_lbl}, inplace=True)
-    obs = stat_df[obs_lbl]
-    fcst = stat_df[fcst_lbl]
+    col_names['obs'] = obs_lbl
+    col_names['fcst'] = fcst_lbl
 
     # Set up the extra columns we need for our math
     cf_lbl = name + '_CF'
     stat_df[cf_lbl] = 0.0
-    cf = stat_df[cf_lbl]
+    col_names['cf'] = cf_lbl
 
-    bc_lbl = name + '_BC'
-    stat_df[bc_lbl] = 0.0
-    bc_fcst = stat_df[bc_lbl]
+    bc_fcst_lbl = name + '_BC'
+    stat_df[bc_fcst_lbl] = 0.0
+    col_names['bc_fcst'] = bc_fcst_lbl
 
     raw_bias_lbl = name + '_Raw_Bias'
     stat_df[raw_bias_lbl] = 0.0
-    raw_bias = stat_df[raw_bias_lbl]
+    col_names['raw_bias'] = raw_bias_lbl
 
     bc_bias_lbl = name + '_BC_Bias'
     stat_df[bc_bias_lbl] = 0.0
-    bc_bias = stat_df[bc_bias_lbl]
+    col_names['bc_bias'] = bc_bias_lbl
 
-    return stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias
+    return stat_df, col_names
 
 
-def gen_station_cf(name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
+def get_df_columns(dataframe, col_names):
+    obs = dataframe[col_names['obs']]
+    fcst = dataframe[col_names['fcst']]
+    cf = dataframe[col_names['cf']]
+    bc_fcst = dataframe[col_names['bc_fcst']]
+    raw_bias = dataframe[col_names['raw_bias']]
+    bc_bias = dataframe[col_names['bc_bias']]
+
+    return obs, fcst, cf, bc_fcst, raw_bias, bc_bias
+
+
+def gen_station_cf(name, stat_df, col_names, args):
+    obs, fcst, cf, bc_fcst, raw_bias, bc_bias = get_df_columns(stat_df, col_names)
+
     cf.iat[0] = 1.0
     for i in range(len(stat_df) - 1):
         # Get some handy nicknames to make the code more readable...
@@ -156,7 +171,9 @@ def add_plot_text(cur_plt, x, y, text):
     cur_plt.figtext(x, y, text, wrap=True, horizontalalignment='center', fontsize=16)
 
 
-def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
+def make_plots(outdir, name, stat_df, col_names, args):
+    obs, fcst, cf, bc_fcst, raw_bias, bc_bias = get_df_columns(stat_df, col_names)
+
     fig = plt.figure(figsize=(16, 16))
 
     # Print whichever series were specified
@@ -177,7 +194,6 @@ def make_plots(outdir, name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args):
     plt.xlabel('Month', fontsize=20)
     plt.ylabel('Precip Bias (")', fontsize=20)
 
-    # FIXME Handle exception when NaN's appear in data munched by metrics methods
     add_plot_text(plt, 0.35, 0.85,
                   name + " Raw 1.33-km WRF MAE = " + str(round(metrics.mean_absolute_error(fcst, obs), 3)))
     add_plot_text(plt, 0.35, 0.8,
@@ -308,11 +324,10 @@ def main():
 
     for station_name in args.stations:
         # Get a copy of the station data we'll be editing
-        stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias = \
-            prep_station_dataframe(dataframe, station_name)
+        stat_df, col_names = prep_station_dataframe(dataframe, station_name)
 
         # Generate the correction factor for this station
-        gen_station_cf(station_name, stat_df, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args)
+        gen_station_cf(station_name, stat_df, col_names, args)
 
         # Write the bias-corrected forecast and other measures to a file, i.e., dump stat_df
         # TODO make this optional?
@@ -322,7 +337,11 @@ def main():
 
         # Make plots if so specified.
         if args.make_plots:
-            make_plots(args.outdir, station_name, obs, fcst, cf, bc_fcst, raw_bias, bc_bias, args)
+            # First clear out any NaNs.  NB: We put this in a new dataframe to reduce the chance
+            # of causing bugs in future commits.  Obviously, 'cleaned_df' might not equal 'stat_df'!
+            cleaned_df = stat_df.dropna(axis='index', subset=[col_names['obs'], col_names['fcst']])
+
+            make_plots(args.outdir, station_name, cleaned_df, col_names, args)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY

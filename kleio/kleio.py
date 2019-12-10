@@ -67,14 +67,13 @@ class ResultPrinter:
 
     def print_datum(self, datum_map):
         outstr = ""
-
         for col in self.column_info:
             if self.separator == " ":
                 outstr += col.format_str.format(datum_map[col.field_name]) + " "
             else:
                 outstr += "'{}',".format(datum_map[col.field_name])
-
         print(outstr)
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # METHODS
@@ -97,11 +96,19 @@ def configure_script():
     parser.add_argument('-S', action='store_true',
                         help="List all weather stations.",
                         dest='list_stations')
+    parser.add_argument('-c', action='store_true',
+                        help="Print out data as a CSV instead of a columnar format.",
+                        dest='print_csv')
     parser.add_argument('-q', action='store_true',
                         help="Print query in lieu of outputting data from DB.",
                         dest='print_query')
 
     args = parser.parse_args()
+
+    if args.print_csv and args.print_query:
+        sys.stderr.write("You specified to both print the mySQL query and to print an output CSV.  Choose one or the "
+                         "other, I can't do both!\n")
+        exit(1)
 
     return args, dbinfo
 
@@ -117,7 +124,7 @@ def process_query(dbinfo, args, query):
 def main():
     args, dbinfo = configure_script()
 
-    query = None
+    rp = ResultPrinter("," if args.print_csv else " ")
     if args.list_stations == True:
 
         query = "SELECT DL.id, DL.datalogger_name, DL.datalogger_char_id, DL.datalogger_num_id, WDS.title " \
@@ -128,7 +135,6 @@ def main():
         cursor = process_query(dbinfo, args, query)
 
         if cursor is not None:
-            rp = ResultPrinter()
             rp.add_column('id', '{:3d}')
             rp.add_column('datalogger_char_id', '{:5s}')
             rp.add_column('datalogger_name', '{:45s}')

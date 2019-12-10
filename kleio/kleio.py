@@ -115,11 +115,14 @@ def configure_script():
 
     # TODO change to a mode-based command line argument
     parser.add_argument('-S', action='store',
-                        help="Space-separated list of stations for which to get data.  Stations are specified via their" 
-                             "char id.  If no stations are given or this argument is omitted, the script will return"
-                             "a list of all dataloggers.",
+                        help="Space-separated list of stations for which to get data.  Stations are specified via "
+                              "their <char id>.  If no stations are given or this argument is omitted, the script will "
+                             "return a list of all dataloggers.",
                         nargs="*",
                         dest='stations')
+    parser.add_argument('-I', action='store_true',
+                        help="List all sensors for a given weather station.",
+                        dest='list_sensors')
     parser.add_argument('-c', action='store_true',
                         help="Print out data as a CSV instead of a columnar format.",
                         dest='print_csv')
@@ -152,6 +155,8 @@ def main():
     args, dbinfo = configure_script()
 
     rp = ResultPrinter("," if args.print_csv else " ")
+
+    # If no stations are specified, get a list of all the stations
     if args.stations == None or len(args.stations) == 0:
 
         query = "SELECT DL.id, DL.datalogger_name, DL.datalogger_char_id, DL.datalogger_num_id, WDS.title " \
@@ -175,6 +180,31 @@ def main():
             for ele in data:
                 rp.print_datum(ele)
 
+    if args.list_sensors:
+        query = "SELECT DL.datalogger_char_id, T.sensortype_name, T.field_name FROM weatherstations_datalogger DL " \
+                "INNER JOIN weatherstations_sensor S ON S.data_logger_id = DL.id " \
+                "INNER JOIN weatherstations_sensortype T ON S.sensor_type_id = T.id " \
+                "WHERE "
+
+        for i, station in enumerate(args.stations):
+            if i >= 1:
+                query += " OR "
+            query += "DL.datalogger_char_id='{}'".format(station)
+
+        cursor = process_query(dbinfo, args, query)
+
+        if cursor is not None:
+            rp.add_column('datalogger_char_id', 5)
+            rp.add_column('sensortype_name', 25)
+            rp.add_column('field_name', 25)
+
+            data = list(cursor.fetchall())
+            data.sort(key=lambda ele: ele['datalogger_char_id'])
+            if args.print_header:
+                rp.print_header()
+            for ele in data:
+                rp.print_datum(ele)
+
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY
 # ---------------------------------------------------------------------------------------------------------------------
@@ -182,3 +212,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

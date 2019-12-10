@@ -88,7 +88,7 @@ def main():
         query = "SELECT DL.id, DL.datalogger_name, DL.datalogger_char_id, DL.datalogger_num_id, WDS.title " \
                 "FROM weatherstations_datalogger AS DL " \
                 "LEFT JOIN weatherdata_station as WDS " \
-                "ON DL.station_id = WDS.id LIMIT 10"
+                "ON DL.station_id = WDS.id"
 
         cursor = process_query(dbinfo, args, query)
 

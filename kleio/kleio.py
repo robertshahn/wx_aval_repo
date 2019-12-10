@@ -114,9 +114,12 @@ def configure_script():
     parser = argparse.ArgumentParser(description='Provides access to the NWAC database.')
 
     # TODO change to a mode-based command line argument
-    parser.add_argument('-S', action='store_true',
-                        help="List all weather stations.",
-                        dest='list_stations')
+    parser.add_argument('-S', action='store',
+                        help="Space-separated list of stations for which to get data.  Stations are specified via their" 
+                             "char id.  If no stations are given or this argument is omitted, the script will return"
+                             "a list of all dataloggers.",
+                        nargs="*",
+                        dest='stations')
     parser.add_argument('-c', action='store_true',
                         help="Print out data as a CSV instead of a columnar format.",
                         dest='print_csv')
@@ -149,7 +152,7 @@ def main():
     args, dbinfo = configure_script()
 
     rp = ResultPrinter("," if args.print_csv else " ")
-    if args.list_stations == True:
+    if args.stations == None or len(args.stations) == 0:
 
         query = "SELECT DL.id, DL.datalogger_name, DL.datalogger_char_id, DL.datalogger_num_id, WDS.title " \
                 "FROM weatherstations_datalogger AS DL " \

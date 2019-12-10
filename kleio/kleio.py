@@ -42,6 +42,40 @@ class DBInfo:
         return cursor
 
 
+class ColumnInfo:
+    def __init__(self, field_name, format_str, print_name=None):
+        self.field_name = field_name
+        self.format_str = format_str
+        if print_name is None:
+            self.print_name = field_name
+        else:
+            self.print_name = print_name
+
+
+class ResultPrinter:
+    def __init__(self, separator = " "):
+        if separator != " " and separator != ",":
+            sys.stderr.write("Unexpected separator passed to ResultPrinter. <{}>".format(separator))
+            exit(1)
+        self.separator = separator
+
+        self.column_info = list()
+
+    def add_column(self, field_name, format_str, print_name=None):
+        ci = ColumnInfo(field_name, format_str, print_name)
+        self.column_info.append(ci)
+
+    def print_datum(self, datum_map):
+        outstr = ""
+
+        for col in self.column_info:
+            if self.separator == " ":
+                outstr += col.format_str.format(datum_map[col.field_name]) + " "
+            else:
+                outstr += "'{}',".format(datum_map[col.field_name])
+
+        print(outstr)
+
 # ---------------------------------------------------------------------------------------------------------------------
 # METHODS
 # ---------------------------------------------------------------------------------------------------------------------
@@ -79,6 +113,7 @@ def process_query(dbinfo, args, query):
 
     return dbinfo.do_query(query)
 
+
 def main():
     args, dbinfo = configure_script()
 
@@ -93,16 +128,17 @@ def main():
         cursor = process_query(dbinfo, args, query)
 
         if cursor is not None:
+            rp = ResultPrinter()
+            rp.add_column('id', '{:3d}')
+            rp.add_column('datalogger_char_id', '{:5s}')
+            rp.add_column('datalogger_name', '{:45s}')
+            rp.add_column('datalogger_num_id', '{:<5d}')
+            rp.add_column('title', '{:s}', 'station_title')
+
             data = list(cursor.fetchall())
             data.sort(key=lambda ele: ele['id'])
             for ele in data:
-                print("{:3d} {:5s} {:30s} {:<5d} {:s}".format(
-                    ele['id'],
-                    ele['datalogger_char_id'],
-                    ele['datalogger_name'],
-                    ele['datalogger_num_id'],
-                    ele['title']
-                ))
+                rp.print_datum(ele)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY

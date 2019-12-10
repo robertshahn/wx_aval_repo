@@ -43,9 +43,9 @@ class DBInfo:
 
 
 class ColumnInfo:
-    def __init__(self, field_name, format_str, print_name=None):
+    def __init__(self, field_name, width, print_name=None):
         self.field_name = field_name
-        self.format_str = format_str
+        self.width = width
         if print_name is None:
             self.print_name = field_name
         else:
@@ -61,17 +61,38 @@ class ResultPrinter:
 
         self.column_info = list()
 
-    def add_column(self, field_name, format_str, print_name=None):
-        ci = ColumnInfo(field_name, format_str, print_name)
+    def add_column(self, field_name, width, print_name=None):
+        ci = ColumnInfo(field_name, width, print_name)
         self.column_info.append(ci)
+
+    def get_columnar_print_str(self, col, datum):
+        if col.width == None:
+            format_str = "{:<s}"
+        else:
+            format_str = "{:<" + "{:d}".format(col.width) + "} "
+        return format_str.format(datum)
+
+    def get_csv_print_str(self, datum):
+        return "'{}',".format(datum)
 
     def print_datum(self, datum_map):
         outstr = ""
         for col in self.column_info:
             if self.separator == " ":
-                outstr += col.format_str.format(datum_map[col.field_name]) + " "
+                outstr += self.get_columnar_print_str(col, datum_map[col.field_name])
             else:
-                outstr += "'{}',".format(datum_map[col.field_name])
+                outstr += self.get_csv_print_str(datum_map[col.field_name])
+        print(outstr)
+
+    def print_header(self):
+        outstr = ""
+        for col in self.column_info:
+            if self.separator == " ":
+                if col.width == None or len(col.field_name) > col.width:
+                    col.width = len(col.field_name)
+                outstr += self.get_columnar_print_str(col, col.print_name)
+            else:
+                outstr += self.get_csv_print_str(col.print_name)
         print(outstr)
 
 
@@ -99,15 +120,18 @@ def configure_script():
     parser.add_argument('-c', action='store_true',
                         help="Print out data as a CSV instead of a columnar format.",
                         dest='print_csv')
+    parser.add_argument('-H', action='store_true',
+                        help="Print a header row.",
+                        dest='print_header')
     parser.add_argument('-q', action='store_true',
                         help="Print query in lieu of outputting data from DB.",
                         dest='print_query')
 
     args = parser.parse_args()
 
-    if args.print_csv and args.print_query:
-        sys.stderr.write("You specified to both print the mySQL query and to print an output CSV.  Choose one or the "
-                         "other, I can't do both!\n")
+    if (args.print_csv or args.print_header) and args.print_query:
+        sys.stderr.write("You provided command line arguments that specify both printing the mySQL query and "
+                         "provide instructions on how to format data output.  This is contradictory!\n")
         exit(1)
 
     return args, dbinfo
@@ -135,14 +159,16 @@ def main():
         cursor = process_query(dbinfo, args, query)
 
         if cursor is not None:
-            rp.add_column('id', '{:3d}')
-            rp.add_column('datalogger_char_id', '{:5s}')
-            rp.add_column('datalogger_name', '{:45s}')
-            rp.add_column('datalogger_num_id', '{:<5d}')
-            rp.add_column('title', '{:s}', 'station_title')
+            rp.add_column('id', 3)
+            rp.add_column('datalogger_char_id', 5)
+            rp.add_column('datalogger_name', 45)
+            rp.add_column('datalogger_num_id', 5)
+            rp.add_column('title', None, 'station_title')
 
             data = list(cursor.fetchall())
             data.sort(key=lambda ele: ele['id'])
+            if args.print_header:
+                rp.print_header()
             for ele in data:
                 rp.print_datum(ele)
 

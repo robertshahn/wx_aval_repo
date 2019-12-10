@@ -34,7 +34,7 @@ class DBInfo:
 
     def do_query(self, query):
         # prepare a cursor object using cursor() method
-        cursor = self.db.cursor()
+        cursor = self.db.cursor(cursor=pymysql.cursors.DictCursor)
 
         # execute SQL query using execute() method.
         cursor.execute(query)
@@ -63,7 +63,6 @@ def configure_script():
     parser.add_argument('-S', action='store_true',
                         help="List all weather stations.",
                         dest='list_stations')
-
     parser.add_argument('-q', action='store_true',
                         help="Print query in lieu of outputting data from DB.",
                         dest='print_query')
@@ -85,19 +84,25 @@ def main():
 
     query = None
     if args.list_stations == True:
-        query = "SELECT id,title,code FROM weatherdata_station"
+
+        query = "SELECT DL.id, DL.datalogger_name, DL.datalogger_char_id, DL.datalogger_num_id, WDS.title " \
+                "FROM weatherstations_datalogger AS DL " \
+                "LEFT JOIN weatherdata_station as WDS " \
+                "ON DL.station_id = WDS.id LIMIT 10"
 
         cursor = process_query(dbinfo, args, query)
 
         if cursor is not None:
             data = list(cursor.fetchall())
-            data.sort(key=lambda ele: ele[0])
-            for (id, title, code) in data:
-                # make sure the codes are as we expect them to be, i.e., osoXXX, where XXX is the
-                # identifying string
-                if len(code) != 6 or code[0:3] != 'oso':
-                    sys.stderr.write("Unexpected format for station code: {}\n".format(code))
-                print("{:3d} {:3s} {:s}".format(id, code[3:], title))
+            data.sort(key=lambda ele: ele['id'])
+            for ele in data:
+                print("{:3d} {:5s} {:30s} {:<5d} {:s}".format(
+                    ele['id'],
+                    ele['datalogger_char_id'],
+                    ele['datalogger_name'],
+                    ele['datalogger_num_id'],
+                    ele['title']
+                ))
 
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY

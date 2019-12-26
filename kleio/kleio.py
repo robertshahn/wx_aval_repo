@@ -169,16 +169,22 @@ def configure_script():
 
     args = parser.parse_args()
 
-    if args.start_time != None or args.end_time != None:
+    if args.start_time is not None or args.end_time is not None:
         # Make sure we have both a start and end time if either is specified
-        if args.start_time == None or args.end_time == None:
-            sys.stderr.write("If a start time ('-s') is specified, an end time must also be specified ('-e'), and vice "
-                             "versa.\n")
+        if args.start_time is None or args.end_time is None:
+            sys.stderr.write("If a start time ('-s') is specified, an end time must also be specified ('-e'), and "
+                             "vice versa.\n")
             exit(1)
 
         # Turn the strings into datetimes
         args.start_time = parse_dt_str(args.start_time)
         args.end_time = parse_dt_str(args.end_time)
+
+        # Make sure we have also specified stations and sensors
+        if args.stations is None or len(args.stations) == 0 or args.sensors is None or len(args.sensors) == 0:
+            sys.stderr.write("We also need a list of stations ('-L') for which to get data and a list of the desired" 
+                             "fields ('-S') to query.\n")
+            exit(1)
 
     if (args.print_csv or args.print_header) and args.print_query:
         sys.stderr.write("You provided command line arguments that specify both printing the mySQL query and "
@@ -201,8 +207,40 @@ def main():
 
     rp = ResultPrinter("," if args.print_csv else " ")
 
+    # If we have a start time, we must want to get data, so let's do just that.
+    if args.start_time is not None:
+        sensor_str = ", ".join(map(lambda x: "M." + x, args.sensors))
+        station_str = " OR ".join(map(lambda x: "DL.datalogger_char_id='{}'".format(x), args.stations))
+
+        query = "SELECT DL.datalogger_char_id, M.timecode, {sensor} " \
+                "FROM weatherstations_datalogger DL " \
+                "INNER JOIN weatherstations_measurement M " \
+                "ON M.data_logger_id = DL.id " \
+                "WHERE M.timecode>='{start_dt}' AND M.timecode<'{end_dt}' AND ({stations})".format(
+            sensor=sensor_str,
+            start_dt=args.start_time.strftime("%Y-%m-%d %H:%M:%S"),
+            end_dt=args.end_time.strftime("%Y-%m-%d %H:%M:%S"),
+            stations=station_str)
+
+        cursor = process_query(dbinfo, args, query)
+
+        if cursor is not None:
+            rp.add_column('datalogger_char_id', 5)
+            rp.add_column('timecode', 18)
+            for sensor in args.sensors:
+                rp.add_column(sensor, 25)
+
+            data = list(cursor.fetchall())
+            data.sort(key=lambda ele: ele['datalogger_char_id'])
+
+            if args.print_header:
+                rp.print_header()
+            for ele in data:
+                ele['timecode'] = ele['timecode'].strftime('%Y%m%d %H:%M:%S')
+                rp.print_datum(ele)
+
     # If no stations are specified, get a list of all the stations
-    if args.stations == None or len(args.stations) == 0:
+    elif args.stations is None or len(args.stations) == 0:
 
         query = "SELECT DL.id, DL.datalogger_name, DL.datalogger_char_id, DL.datalogger_num_id, WDS.title " \
                 "FROM weatherstations_datalogger AS DL " \
@@ -224,6 +262,8 @@ def main():
                 rp.print_header()
             for ele in data:
                 rp.print_datum(ele)
+    # We have at least one station specified but no start and end date, so we must want a list of all the sensors at
+    # those stations.
     else:
         query = "SELECT DL.datalogger_char_id, T.sensortype_name, T.field_name FROM weatherstations_datalogger DL " \
                 "INNER JOIN weatherstations_sensor S ON S.data_logger_id = DL.id " \

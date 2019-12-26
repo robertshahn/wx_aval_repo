@@ -6,8 +6,11 @@
 
 import argparse
 import configparser
-import pymysql
 import sys
+from datetime import datetime
+
+import pymysql
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # CONFIGURATION and INITIALIZATION
@@ -101,6 +104,23 @@ class ResultPrinter:
 # ---------------------------------------------------------------------------------------------------------------------
 
 
+def parse_dt_str(dt_str):
+    date_formats = ["%Y%m%d %H:%M:%S", "%Y%m%d %H:%M", "%Y%m%d"]
+    parsed_dt = None
+    for cur_format in date_formats:
+        try:
+            parsed_dt = datetime.strptime(dt_str, cur_format)
+            break
+        except ValueError:
+            pass
+
+    if parsed_dt is None:
+        sys.stderr.write("Time must be specified as 'YYYYMMDD [HH:MM[:SS]], where 'HH' is 24 hour time.\n")
+        exit(1)
+
+    return parsed_dt
+
+
 def configure_script():
     # Read in the config file
     config = configparser.ConfigParser()
@@ -114,15 +134,29 @@ def configure_script():
     parser = argparse.ArgumentParser(description='Provides access to the NWAC database.')
 
     # TODO change to a mode-based command line argument
-    parser.add_argument('-S', action='store',
+    parser.add_argument('-s', action='store',
+                        help="Start time specified as 'YYYYMMDD [24 hour time].'  If '-s' is specified, '-e' must "
+                            "also be specified.  If a start and end time are specified, then we actually get data from "
+                            "the database.  Otherwise, this script will return a list what fields can be accessed in "
+                            "the database.",
+                        dest='start_time')
+    parser.add_argument('-e', action='store',
+                        help="End time specified as 'YYYYMMDD [24 hour time].  See information on '-s' argument for "
+                            "more information.",
+                        dest='end_time')
+
+    parser.add_argument('-L', action='store',
                         help="Space-separated list of stations for which to get data.  Stations are specified via "
-                              "their <char id>.  If no stations are given or this argument is omitted, the script will "
-                             "return a list of all dataloggers.",
+                            "their <char id>.  If no stations are given or this argument is omitted, the script will "
+                            "return a list of all dataloggers.",
                         nargs="*",
                         dest='stations')
-    parser.add_argument('-I', action='store_true',
-                        help="List all sensors for a given weather station.",
-                        dest='list_sensors')
+    parser.add_argument('-S', action='store',
+                        help="Space-separated list of sensor types for which to get data.  Specify 'all' to get data "
+                            "for all sensor types or to list all sensor types.",
+                        nargs="*",
+                        dest="sensors")
+
     parser.add_argument('-c', action='store_true',
                         help="Print out data as a CSV instead of a columnar format.",
                         dest='print_csv')
@@ -134,6 +168,17 @@ def configure_script():
                         dest='print_query')
 
     args = parser.parse_args()
+
+    if args.start_time != None or args.end_time != None:
+        # Make sure we have both a start and end time if either is specified
+        if args.start_time == None or args.end_time == None:
+            sys.stderr.write("If a start time ('-s') is specified, an end time must also be specified ('-e'), and vice "
+                             "versa.\n")
+            exit(1)
+
+        # Turn the strings into datetimes
+        args.start_time = parse_dt_str(args.start_time)
+        args.end_time = parse_dt_str(args.end_time)
 
     if (args.print_csv or args.print_header) and args.print_query:
         sys.stderr.write("You provided command line arguments that specify both printing the mySQL query and "
@@ -179,8 +224,7 @@ def main():
                 rp.print_header()
             for ele in data:
                 rp.print_datum(ele)
-
-    if args.list_sensors:
+    else:
         query = "SELECT DL.datalogger_char_id, T.sensortype_name, T.field_name FROM weatherstations_datalogger DL " \
                 "INNER JOIN weatherstations_sensor S ON S.data_logger_id = DL.id " \
                 "INNER JOIN weatherstations_sensortype T ON S.sensor_type_id = T.id " \

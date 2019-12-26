@@ -7,6 +7,7 @@
 import argparse
 import configparser
 import sys
+from collections import defaultdict
 from datetime import datetime
 
 import pymysql
@@ -78,13 +79,17 @@ class ResultPrinter:
     def get_csv_print_str(self, datum):
         return "'{}',".format(datum)
 
-    def print_datum(self, datum_map):
+    def print_datum(self, datum_map, sigfigs = 2):
         outstr = ""
         for col in self.column_info:
+            print_val = datum_map[col.field_name]
+            if isinstance(print_val, float):
+                print_val = round(print_val, sigfigs)
+
             if self.separator == " ":
-                outstr += self.get_columnar_print_str(col, datum_map[col.field_name])
+                outstr += self.get_columnar_print_str(col, print_val)
             else:
-                outstr += self.get_csv_print_str(datum_map[col.field_name])
+                outstr += self.get_csv_print_str(print_val)
         print(outstr)
 
     def print_header(self):
@@ -141,9 +146,14 @@ def configure_script():
                             "the database.",
                         dest='start_time')
     parser.add_argument('-e', action='store',
-                        help="End time specified as 'YYYYMMDD [24 hour time].  See information on '-s' argument for "
-                            "more information.",
+                        help="End time specified as 'YYYYMMDD [24 hour time].  Data is queried up to but not including "
+                            " the specified time.  See information on '-s' argument for more information.",
                         dest='end_time')
+    #todo Sum or average based on what the datafield is, i.e., battery voltage should be averged, precip summed.
+    parser.add_argument('--bin', action='store',
+                        help="Bin by days or by half-days, summing all data fields.",
+                        choices=['daily', 'ampm'],
+                        dest='do_binning')
 
     parser.add_argument('-L', action='store',
                         help="Space-separated list of stations for which to get data.  Stations are specified via "
@@ -201,6 +211,49 @@ def process_query(dbinfo, args, query):
 
     return dbinfo.do_query(query)
 
+def bin_data(bin_type, data):
+    NON_DATA_FIELDS = {'datalogger_char_id', 'timecode'}
+
+    # datalogger_char_id -> time_key -> data
+    out_data_map = defaultdict(dict)
+
+    # Put the data into bins
+    for ele in data:
+        dl_id = ele["datalogger_char_id"]
+
+        if bin_type == "daily":
+            time_key_format = "%Y%m%d"
+        else:
+            time_key_format = "%Y%m%d-%p"
+        time_key = ele['timecode'].strftime(time_key_format)
+
+        # If we've never seen this dl_id-time_key combo, initialize our data to '0.'
+        if dl_id not in out_data_map or time_key not in out_data_map[dl_id]:
+            out_data_map[dl_id][time_key] = dict()
+
+            for k, v in ele.items():
+                if k == 'datalogger_char_id':
+                    new_v = v
+                elif k == 'timecode':
+                    new_v = time_key
+                else:
+                    new_v = 0.0
+
+                out_data_map[dl_id][time_key][k] = new_v
+
+        # Now add in the elements
+        for k, v in ele.items():
+            if k not in NON_DATA_FIELDS:
+                out_data_map[dl_id][time_key][k] += v
+
+    # Turn the output dict into a list
+    #todo Is there a more Pythonic way to do this?
+    output_list = list()
+    for dl_id, dl_data in out_data_map.items():
+        for time_key, sensor_data in dl_data.items():
+            output_list.append(sensor_data)
+
+    return output_list
 
 def main():
     args, dbinfo = configure_script()
@@ -231,12 +284,15 @@ def main():
                 rp.add_column(sensor, 25)
 
             data = list(cursor.fetchall())
+            if args.do_binning is not None:
+                data = bin_data(args.do_binning, data)
             data.sort(key=lambda ele: ele['datalogger_char_id'])
 
             if args.print_header:
                 rp.print_header()
             for ele in data:
-                ele['timecode'] = ele['timecode'].strftime('%Y%m%d %H:%M:%S')
+                if args.do_binning is None:
+                    ele['timecode'] = ele['timecode'].strftime('%Y%m%d %H:%M:%S')
                 rp.print_datum(ele)
 
     # If no stations are specified, get a list of all the stations

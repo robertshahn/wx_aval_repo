@@ -162,18 +162,19 @@ def configure_script():
                         nargs="*",
                         dest='stations')
     parser.add_argument('-S', action='store',
-                        help="Space-separated list of sensor types for which to get data.  Specify 'all' to get data "
-                            "for all sensor types or to list all sensor types.",
+                        help="Space-separated list of sensor types for which to get data.  If one or more stations "
+                            "are given with the '-L' argument and either no sensors are given or this argument is "
+                            "ommitted, the script will return a list of all sensor types for the specified stations.",
                         nargs="*",
                         dest="sensors")
 
-    parser.add_argument('-c', action='store_true',
+    parser.add_argument('--csv', action='store_true',
                         help="Print out data as a CSV instead of a columnar format.",
                         dest='print_csv')
-    parser.add_argument('-H', action='store_true',
+    parser.add_argument('--header', action='store_true',
                         help="Print a header row.",
                         dest='print_header')
-    parser.add_argument('-q', action='store_true',
+    parser.add_argument('--sql', action='store_true',
                         help="Print query in lieu of outputting data from DB.",
                         dest='print_query')
 
@@ -192,9 +193,12 @@ def configure_script():
 
         # Make sure we have also specified stations and sensors
         if args.stations is None or len(args.stations) == 0 or args.sensors is None or len(args.sensors) == 0:
-            sys.stderr.write("We also need a list of stations ('-L') for which to get data and a list of the desired" 
-                             "fields ('-S') to query.\n")
-            exit(1)
+            sys.stderr.write("When we have specified a date range ('-s' and '-e'), we also need a list of stations "
+                             "('-L') for which to get data and a list of the desired fields ('-S') to query.\n")
+            # Don't exit here.  Instead, let's allow the script to list stations or sensors, as appropriate based on the
+            # other arguments
+            args.start_time = None
+            args.end_time = None
 
     if (args.print_csv or args.print_header) and args.print_query:
         sys.stderr.write("You provided command line arguments that specify both printing the mySQL query and "

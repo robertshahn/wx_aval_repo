@@ -219,29 +219,29 @@ def process_query(dbinfo, args, query):
     return dbinfo.do_query(query)
 
 def bin_data(bin_type, data):
-    NON_DATA_FIELDS = {'datalogger_char_id', 'timecode'}
+    NON_DATA_FIELDS = {'station', 'time'}
 
-    # datalogger_char_id -> time_key -> data
+    # station -> time_key -> data
     out_data_map = defaultdict(dict)
 
     # Put the data into bins
     for ele in data:
-        dl_id = ele["datalogger_char_id"]
+        dl_id = ele["station"]
 
         if bin_type == "daily":
             time_key_format = "%Y%m%d"
         else:
             time_key_format = "%Y%m%d-%p"
-        time_key = ele['timecode'].strftime(time_key_format)
+        time_key = ele['time'].strftime(time_key_format)
 
         # If we've never seen this dl_id-time_key combo, initialize our data to '0.'
         if dl_id not in out_data_map or time_key not in out_data_map[dl_id]:
             out_data_map[dl_id][time_key] = dict()
 
             for k, v in ele.items():
-                if k == 'datalogger_char_id':
+                if k == 'station':
                     new_v = v
-                elif k == 'timecode':
+                elif k == 'time':
                     new_v = time_key
                 else:
                     new_v = 0.0
@@ -272,7 +272,8 @@ def main():
         sensor_str = ", ".join(map(lambda x: "M." + x, args.sensors))
         station_str = " OR ".join(map(lambda x: "DL.datalogger_char_id='{}'".format(x), args.stations))
 
-        query = "SELECT DL.datalogger_char_id, CONVERT_TZ(M.timecode, 'UTC', 'US/Pacific') AS 'timecode', {sensor} " \
+        query = "SELECT DL.datalogger_char_id AS 'station', CONVERT_TZ(M.timecode, 'UTC', 'US/Pacific') AS 'time', "\
+                "{sensor} " \
                 "FROM weatherstations_datalogger DL " \
                 "INNER JOIN weatherstations_measurement M " \
                 "ON M.data_logger_id = DL.id " \
@@ -285,21 +286,21 @@ def main():
         cursor = process_query(dbinfo, args, query)
 
         if cursor is not None:
-            rp.add_column('datalogger_char_id', 5)
-            rp.add_column('timecode', 18)
+            rp.add_column('station', 5)
+            rp.add_column('time', 18)
             for sensor in args.sensors:
                 rp.add_column(sensor, 25)
 
             data = list(cursor.fetchall())
             if args.do_binning is not None:
                 data = bin_data(args.do_binning, data)
-            data.sort(key=lambda ele: ele['datalogger_char_id'])
+            data.sort(key=lambda ele: ele['station'])
 
             if args.print_header:
                 rp.print_header()
             for ele in data:
                 if args.do_binning is None:
-                    ele['timecode'] = ele['timecode'].strftime('%Y%m%d %H:%M:%S')
+                    ele['time'] = ele['time'].strftime('%Y%m%d %H:%M:%S')
                 rp.print_datum(ele)
 
     # If no stations are specified, get a list of all the stations

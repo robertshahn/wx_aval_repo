@@ -1,5 +1,8 @@
 #!/usr/local/bin/python3
 
+# The use of this script is described in
+# https://docs.google.com/document/d/1OMhArGSdC8cSmdPu8fiHjUrNR50y1o4MRpr6Po2m5FQ/edit?usp=sharing
+
 # ---------------------------------------------------------------------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------------------------------------------------------------------

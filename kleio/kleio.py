@@ -286,9 +286,10 @@ def configure_script():
                         nargs="*",
                         dest='stations')
     parser.add_argument('-S', action='store',
-                        help="Space-separated list of sensor types for which to get data.  If one or more stations "
-                             "are given with the '-L' argument and either no sensors are given or this argument is "
-                             "omitted, the script will return a list of all sensor types for the specified stations.",
+                        help="Space-separated list of sensor types ('field_name' values)  which to get data.  If one "
+                             "or more stations are given with the '-L' argument and either no sensors are given or "
+                             "this argument is omitted, the script will return a list of all sensor types for the "
+                             "specified stations.",
                         nargs="*",
                         dest="sensors")
 
@@ -442,7 +443,7 @@ def main():
     # If no stations are specified, get a list of all the stations
     elif args.stations is None or len(args.stations) == 0:
 
-        query = "SELECT DL.id, DL.datalogger_name, DL.datalogger_char_id, DL.datalogger_num_id, WDS.title " \
+        query = "SELECT DL.id, DL.datalogger_name, DL.datalogger_char_id AS 'aws_id', WDS.title " \
                 "FROM weatherstations_datalogger AS DL " \
                 "LEFT JOIN weatherdata_station as WDS " \
                 "ON DL.station_id = WDS.id"
@@ -451,9 +452,8 @@ def main():
 
         if cursor is not None:
             rp.add_column('id', 3)
-            rp.add_column('datalogger_char_id', 5)
+            rp.add_column('aws_id', 5)
             rp.add_column('datalogger_name', 45)
-            rp.add_column('datalogger_num_id', 5)
             rp.add_column('title', None, 'station_title')
 
             data = list(cursor.fetchall())
@@ -465,7 +465,8 @@ def main():
     # We have at least one station specified but no start and end date, so we must want a list of all the sensors at
     # those stations.
     else:
-        query = "SELECT DL.datalogger_char_id, T.sensortype_name, T.field_name FROM weatherstations_datalogger DL " \
+        query = "SELECT DL.datalogger_char_id AS 'station', T.sensortype_name, T.field_name " \
+                "FROM weatherstations_datalogger DL " \
                 "INNER JOIN weatherstations_sensor S ON S.data_logger_id = DL.id " \
                 "INNER JOIN weatherstations_sensortype T ON S.sensor_type_id = T.id " \
                 "WHERE "
@@ -478,12 +479,12 @@ def main():
         cursor = process_query(dbinfo, args, query)
 
         if cursor is not None:
-            rp.add_column('datalogger_char_id', 5)
+            rp.add_column('station', 5)
             rp.add_column('sensortype_name', 25)
             rp.add_column('field_name', 25)
 
             data = list(cursor.fetchall())
-            data.sort(key=lambda x: x['datalogger_char_id'])
+            data.sort(key=lambda x: x['station'])
             if args.print_header:
                 rp.print_header()
             for ele in data:

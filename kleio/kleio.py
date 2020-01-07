@@ -7,11 +7,13 @@
 # IMPORTS
 # ---------------------------------------------------------------------------------------------------------------------
 
+import pymysql
+import pytz
+import sys
+
 import argparse
 import configparser
-import pytz
-import pymysql
-import sys
+
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum, auto

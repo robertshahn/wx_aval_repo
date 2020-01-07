@@ -60,7 +60,7 @@ class ColumnInfo:
 
 
 class ResultPrinter:
-    def __init__(self, separator = " "):
+    def __init__(self, separator=" "):
         if separator != " " and separator != ",":
             sys.stderr.write("Unexpected separator passed to ResultPrinter. <{}>".format(separator))
             exit(1)
@@ -72,17 +72,19 @@ class ResultPrinter:
         ci = ColumnInfo(field_name, width, print_name)
         self.column_info.append(ci)
 
-    def get_columnar_print_str(self, col, datum):
-        if col.width == None:
+    @staticmethod
+    def get_columnar_print_str(col, datum):
+        if col.width is None:
             format_str = "{:<s}"
         else:
             format_str = "{:<" + "{:d}".format(col.width) + "} "
         return format_str.format(datum)
 
-    def get_csv_print_str(self, datum):
+    @staticmethod
+    def get_csv_print_str(datum):
         return "'{}',".format(datum)
 
-    def print_datum(self, datum_map, sigfigs = 2):
+    def print_datum(self, datum_map, sigfigs=2):
         outstr = ""
         for col in self.column_info:
             print_val = datum_map[col.field_name]
@@ -99,52 +101,53 @@ class ResultPrinter:
         outstr = ""
         for col in self.column_info:
             if self.separator == " ":
-                if col.width == None or len(col.field_name) > col.width:
+                if col.width is None or len(col.field_name) > col.width:
                     col.width = len(col.field_name)
                 outstr += self.get_columnar_print_str(col, col.print_name)
             else:
                 outstr += self.get_csv_print_str(col.print_name)
         print(outstr)
 
+
 # Helper class for deciding how to bin fields in the 'weatherstations_measurement' table
 class BinningOp:
     class Action(Enum):
-        NULL = auto()        # Shouldn't get this value
-        CHECK_EQUAL = auto() # Check to make sure all values are equal
+        NULL = auto()  # Shouldn't get this value
+        CHECK_EQUAL = auto()  # Check to make sure all values are equal
         AVERAGE = auto()
         SUM = auto()
         MIN = auto()
         MAX = auto()
 
-# todo Figure out what action to take for fields that are commented out
+    # todo Figure out what action to take for fields that are commented out
     FIELD_MAP = {
-#        'id'                  : Action.PASSTHROUGH,
-        'data_logger_id'      : Action.NULL,
-        'time'                : Action.NULL, # remapped from 'timecode' in SQL query
-        'is_24hr'             : Action.CHECK_EQUAL,
-        'battery_voltage'     : Action.AVERAGE,
-        'temperature'         : Action.AVERAGE,
-        'relative_humidity'   : Action.AVERAGE,
-        'precipitation'       : Action.SUM,
-        'snow_depth'          : Action.AVERAGE,
-        'wind_direction'      : Action.AVERAGE,
-        'wind_speed_average'  : Action.AVERAGE,
-        'wind_speed_minimum'  : Action.MIN,
-        'wind_speed_maximum'  : Action.MAX,
-        'barometric_pressure' : Action.AVERAGE,
-        'equip_temperature'   : Action.AVERAGE,
-        'solar_pyranometer'   : Action.AVERAGE,
-#        'snowfall_24_hour'    : Action.AVERAGE,
-#        'intermittent_snow'   : Action.??,
-#        'data_source_id'      : Action.PASSTHROUGH,
-        'net_solar'           : Action.AVERAGE,
-#        'int_hash'            : Action.??,
-        'soil_moisture_a'     : Action.AVERAGE,
-        'soil_moisture_b'     : Action.AVERAGE,
-        'soil_moisture_c'     : Action.AVERAGE,
-        'soil_temperature_a'  : Action.AVERAGE,
-        'soil_temperature_b'  : Action.AVERAGE,
-        'soil_temperature_c'  : Action.AVERAGE
+        #        'id'                  : Action.PASSTHROUGH,
+        'data_logger_id': Action.NULL,
+        'time': Action.NULL,  # remapped from 'timecode' in SQL query
+        'is_24hr': Action.CHECK_EQUAL,
+        'battery_voltage': Action.AVERAGE,
+        'temperature': Action.AVERAGE,
+        'relative_humidity': Action.AVERAGE,
+        'precipitation': Action.SUM,
+        'snow_depth': Action.AVERAGE,
+        'wind_direction': Action.AVERAGE,
+        'wind_speed_average': Action.AVERAGE,
+        'wind_speed_minimum': Action.MIN,
+        'wind_speed_maximum': Action.MAX,
+        'barometric_pressure': Action.AVERAGE,
+        'equip_temperature': Action.AVERAGE,
+        'solar_pyranometer': Action.AVERAGE,
+        #        'snowfall_24_hour'    : Action.AVERAGE,
+        #        'intermittent_snow'   : Action.??,
+        #        'data_source_id'      : Action.PASSTHROUGH,
+        'net_solar': Action.AVERAGE,
+        #        'int_hash'            : Action.??,
+        'soil_moisture_a': Action.AVERAGE,
+        'soil_moisture_b': Action.AVERAGE,
+        'soil_moisture_c': Action.AVERAGE,
+        'soil_temperature_a': Action.AVERAGE,
+        'soil_temperature_b': Action.AVERAGE,
+        'soil_temperature_c': Action.AVERAGE
     }
 
     @staticmethod
@@ -158,25 +161,24 @@ class BinningOp:
 
         if key not in BinningOp.FIELD_MAP.keys():
             raise ValueError("Trying to bin a key for which an action has not been defined: {key}".format(
-                key = key
+                key=key
             ))
         action = BinningOp.FIELD_MAP[key]
 
         if action == BinningOp.Action.NULL:
             raise RuntimeError("Trying to bin a key that should never be binned: {key}.".format(
-                key = key
+                key=key
             ))
         elif action == BinningOp.Action.CHECK_EQUAL:
             if old_value is None:
                 return cur_value
 
             if old_value != cur_value:
-                raise ValueError("Values should be constant for key '{key}', but values changed: '{old}' -> " \
-                                 "'{new}'.".format(
-                    key = key,
-                    old = old_value,
-                    new = cur_value
-                ))
+                raise ValueError("Values should be constant for key '{key}', but values changed: '{old}' -> "
+                                 "'{new}'.".format(key=key,
+                                                   old=old_value,
+                                                   new=cur_value
+                                                   ))
         elif action == BinningOp.Action.AVERAGE:
             if old_value is None:
                 old_value = (0, 0.0)
@@ -195,7 +197,7 @@ class BinningOp:
             return max(old_value, cur_value)
         else:
             raise RuntimeError("Action '{action}' has been defined but not implemented.".format(
-                action = action
+                action=action
             ))
 
     @staticmethod
@@ -259,9 +261,9 @@ def configure_script():
     # TODO change to a mode-based command line argument
     parser.add_argument('-s', action='store',
                         help="Start time specified as 'YYYYMMDD [24 hour time].'  If '-s' is specified, '-e' "
-                            "must also be specified.  If a start and end time are specified, then we actually get data "
-                            "from the database.  Otherwise, this script will return a list what fields can be accessed "
-                            "in the database.",
+                             "must also be specified.  If a start and end time are specified, then we actually get "
+                             "data from the database.  Otherwise, this script will return a list what fields can be "
+                             "accessed in the database.",
                         dest='start_time')
     parser.add_argument('-e', action='store',
                         help="End time specified as 'YYYYMMDD [24 hour time].  Data is queried up to but not "
@@ -279,14 +281,14 @@ def configure_script():
 
     parser.add_argument('-L', action='store',
                         help="Space-separated list of stations for which to get data.  Stations are specified via "
-                            "their <char id>.  If no stations are given or this argument is omitted, the script will "
-                            "return a list of all dataloggers.",
+                             "their <char id>.  If no stations are given or this argument is omitted, the script will "
+                             "return a list of all dataloggers.",
                         nargs="*",
                         dest='stations')
     parser.add_argument('-S', action='store',
                         help="Space-separated list of sensor types for which to get data.  If one or more stations "
-                            "are given with the '-L' argument and either no sensors are given or this argument is "
-                            "ommitted, the script will return a list of all sensor types for the specified stations.",
+                             "are given with the '-L' argument and either no sensors are given or this argument is "
+                             "omitted, the script will return a list of all sensor types for the specified stations.",
                         nargs="*",
                         dest="sensors")
 
@@ -334,6 +336,7 @@ def configure_script():
 
     return args, dbinfo
 
+
 def process_query(dbinfo, args, query):
     # Just print the query if that's all we're doing.
     if args.print_query:
@@ -342,9 +345,8 @@ def process_query(dbinfo, args, query):
 
     return dbinfo.do_query(query)
 
-def bin_data(bin_type, data):
-    NON_DATA_FIELDS = {'station', 'time'}
 
+def bin_data(bin_type, data):
     # station -> time_key -> data
     out_data_map = defaultdict(dict)
 
@@ -379,7 +381,7 @@ def bin_data(bin_type, data):
                 out_data_map[dl_id][time_key][k] = BinningOp.mix_in_value(old_value, k, v)
 
     # Turn the output dict into a list
-    #todo Is there a more Pythonic way to do this?
+    # todo Is there a more Pythonic way to do this?
     output_list = list()
     for dl_id, dl_data in out_data_map.items():
         for time_key, sensor_data in dl_data.items():
@@ -389,6 +391,7 @@ def bin_data(bin_type, data):
             output_list.append(sensor_data)
 
     return output_list
+
 
 def main():
     args, dbinfo = configure_script()
@@ -427,7 +430,7 @@ def main():
             data = list(cursor.fetchall())
             if args.do_binning is not None:
                 data = bin_data(args.do_binning, data)
-            data.sort(key=lambda ele: ele['station'])
+            data.sort(key=lambda x: x['station'])
 
             if args.print_header:
                 rp.print_header()
@@ -454,7 +457,7 @@ def main():
             rp.add_column('title', None, 'station_title')
 
             data = list(cursor.fetchall())
-            data.sort(key=lambda ele: ele['id'])
+            data.sort(key=lambda x: x['id'])
             if args.print_header:
                 rp.print_header()
             for ele in data:
@@ -480,11 +483,12 @@ def main():
             rp.add_column('field_name', 25)
 
             data = list(cursor.fetchall())
-            data.sort(key=lambda ele: ele['datalogger_char_id'])
+            data.sort(key=lambda x: x['datalogger_char_id'])
             if args.print_header:
                 rp.print_header()
             for ele in data:
                 rp.print_datum(ele)
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # SCRIPT BODY
@@ -493,4 +497,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

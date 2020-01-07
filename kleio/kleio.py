@@ -14,6 +14,7 @@ import pymysql
 import sys
 from collections import defaultdict
 from datetime import datetime
+from enum import Enum, auto
 
 # ---------------------------------------------------------------------------------------------------------------------
 # CONFIGURATION and INITIALIZATION
@@ -105,6 +106,121 @@ class ResultPrinter:
                 outstr += self.get_csv_print_str(col.print_name)
         print(outstr)
 
+# Helper class for deciding how to bin fields in the 'weatherstations_measurement' table
+class BinningOp:
+    class Action(Enum):
+        NULL = auto()        # Shouldn't get this value
+        CHECK_EQUAL = auto() # Check to make sure all values are equal
+        AVERAGE = auto()
+        SUM = auto()
+        MIN = auto()
+        MAX = auto()
+
+# todo Figure out what action to take for fields that are commented out
+    FIELD_MAP = {
+#        'id'                  : Action.PASSTHROUGH,
+        'data_logger_id'      : Action.NULL,
+        'time'                : Action.NULL, # remapped from 'timecode' in SQL query
+        'is_24hr'             : Action.CHECK_EQUAL,
+        'battery_voltage'     : Action.AVERAGE,
+        'temperature'         : Action.AVERAGE,
+        'relative_humidity'   : Action.AVERAGE,
+        'precipitation'       : Action.SUM,
+        'snow_depth'          : Action.AVERAGE,
+        'wind_direction'      : Action.AVERAGE,
+        'wind_speed_average'  : Action.AVERAGE,
+        'wind_speed_minimum'  : Action.MIN,
+        'wind_speed_maximum'  : Action.MAX,
+        'barometric_pressure' : Action.AVERAGE,
+        'equip_temperature'   : Action.AVERAGE,
+        'solar_pyranometer'   : Action.AVERAGE,
+#        'snowfall_24_hour'    : Action.AVERAGE,
+#        'intermittent_snow'   : Action.??,
+#        'data_source_id'      : Action.PASSTHROUGH,
+        'net_solar'           : Action.AVERAGE,
+#        'int_hash'            : Action.??,
+        'soil_moisture_a'     : Action.AVERAGE,
+        'soil_moisture_b'     : Action.AVERAGE,
+        'soil_moisture_c'     : Action.AVERAGE,
+        'soil_temperature_a'  : Action.AVERAGE,
+        'soil_temperature_b'  : Action.AVERAGE,
+        'soil_temperature_c'  : Action.AVERAGE
+    }
+
+    @staticmethod
+    def is_binnable_col(col_name):
+        if col_name not in BinningOp.FIELD_MAP.keys() or BinningOp.FIELD_MAP[col_name] == BinningOp.Action.NULL:
+            return False
+        return True
+
+    @staticmethod
+    def mix_in_value(old_value, key, cur_value):
+
+        if key not in BinningOp.FIELD_MAP.keys():
+            raise ValueError("Trying to bin a key for which an action has not been defined: {key}".format(
+                key = key
+            ))
+        action = BinningOp.FIELD_MAP[key]
+
+        if action == BinningOp.Action.NULL:
+            raise RuntimeError("Trying to bin a key that should never be binned: {key}.".format(
+                key = key
+            ))
+        elif action == BinningOp.Action.CHECK_EQUAL:
+            if old_value is None:
+                return cur_value
+
+            if old_value != cur_value:
+                raise ValueError("Values should be constant for key '{key}', but values changed: '{old}' -> " \
+                                 "'{new}'.".format(
+                    key = key,
+                    old = old_value,
+                    new = cur_value
+                ))
+        elif action == BinningOp.Action.AVERAGE:
+            if old_value is None:
+                old_value = (0, 0.0)
+            return old_value[0] + 1, old_value[1] + cur_value
+        elif action == BinningOp.Action.SUM:
+            if old_value is None:
+                old_value = 0.0
+            return old_value + cur_value
+        elif action == BinningOp.Action.MIN:
+            if old_value is None:
+                return cur_value
+            return min(old_value, cur_value)
+        elif action == BinningOp.Action.MAX:
+            if old_value is None:
+                return cur_value
+            return max(old_value, cur_value)
+        else:
+            raise RuntimeError("Action '{action}' has been defined but not implemented.".format(
+                action = action
+            ))
+
+    @staticmethod
+    def complete_bin(key, cur_bin):
+        action = BinningOp.FIELD_MAP[key]
+
+        if action == BinningOp.Action.NULL:
+            raise RuntimeError("Trying to bin a key that should never be binned: {key}.".format(
+                key=key
+            ))
+        elif action == BinningOp.Action.CHECK_EQUAL:
+            return cur_bin
+        elif action == BinningOp.Action.AVERAGE:
+            return cur_bin[1] / cur_bin[0]
+        elif action == BinningOp.Action.SUM:
+            return cur_bin
+        elif action == BinningOp.Action.MIN:
+            return cur_bin
+        elif action == BinningOp.Action.MAX:
+            return cur_bin
+        else:
+            raise RuntimeError("Action '{action}' has been defined but not implemented.".format(
+                action=action
+            ))
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # METHODS
@@ -156,7 +272,6 @@ def configure_script():
                              "given for 12-hour GMT AM/PMs.  As such, the default value is 'gmt.'",
                         choices=['gmt', 'pacific'],
                         dest='timezone')
-    #todo Sum or average based on what the datafield is, i.e., battery voltage should be averged, precip summed.
     parser.add_argument('--bin', action='store',
                         help="Bin by days or by half-days, summing all data fields.",
                         choices=['daily', 'ampm'],
@@ -253,20 +368,24 @@ def bin_data(bin_type, data):
                 elif k == 'time':
                     new_v = time_key
                 else:
-                    new_v = 0.0
+                    new_v = None
 
                 out_data_map[dl_id][time_key][k] = new_v
 
         # Now add in the elements
         for k, v in ele.items():
-            if k not in NON_DATA_FIELDS:
-                out_data_map[dl_id][time_key][k] += v
+            if BinningOp.is_binnable_col(k):
+                old_value = out_data_map[dl_id][time_key][k]
+                out_data_map[dl_id][time_key][k] = BinningOp.mix_in_value(old_value, k, v)
 
     # Turn the output dict into a list
     #todo Is there a more Pythonic way to do this?
     output_list = list()
     for dl_id, dl_data in out_data_map.items():
         for time_key, sensor_data in dl_data.items():
+            for k, v in sensor_data.items():
+                if BinningOp.is_binnable_col(k):
+                    sensor_data[k] = BinningOp.complete_bin(k, v)
             output_list.append(sensor_data)
 
     return output_list

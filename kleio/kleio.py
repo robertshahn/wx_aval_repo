@@ -142,15 +142,20 @@ def configure_script():
 
     # TODO change to a mode-based command line argument
     parser.add_argument('-s', action='store',
-                        help="Start time specified as 'YYYYMMDD [24 hour time, Pacific].'  If '-s' is specified, '-e' "
+                        help="Start time specified as 'YYYYMMDD [24 hour time].'  If '-s' is specified, '-e' "
                             "must also be specified.  If a start and end time are specified, then we actually get data "
                             "from the database.  Otherwise, this script will return a list what fields can be accessed "
                             "in the database.",
                         dest='start_time')
     parser.add_argument('-e', action='store',
-                        help="End time specified as 'YYYYMMDD [24 hour time, Pacific].  Data is queried up to but not "
+                        help="End time specified as 'YYYYMMDD [24 hour time].  Data is queried up to but not "
                              "including the specified time.  See information on '-s' argument for more information.",
                         dest='end_time')
+    parser.add_argument('--zone', action='store', default="gmt",
+                        help="The timezone for which the date range is specified.  Remember, forecasts are, by default,"
+                             "given for 12-hour GMT AM/PMs.  As such, the default value is 'gmt.'",
+                        choices=['gmt', 'pacific'],
+                        dest='timezone')
     #todo Sum or average based on what the datafield is, i.e., battery voltage should be averged, precip summed.
     parser.add_argument('--bin', action='store',
                         help="Bin by days or by half-days, summing all data fields.",
@@ -194,8 +199,9 @@ def configure_script():
         args.end_time = parse_dt_str(args.end_time)
 
         # Convert the command line args to UTC since that's what's stored in the DB.
-        args.start_time = pytz.timezone("US/Pacific").localize(args.start_time).astimezone(pytz.utc)
-        args.end_time = pytz.timezone("US/Pacific").localize(args.end_time).astimezone(pytz.utc)
+        if args.timezone == 'pacific':
+            args.start_time = pytz.timezone("US/Pacific").localize(args.start_time).astimezone(pytz.utc)
+            args.end_time = pytz.timezone("US/Pacific").localize(args.end_time).astimezone(pytz.utc)
 
         # Make sure we have also specified stations and sensors
         if args.stations is None or len(args.stations) == 0 or args.sensors is None or len(args.sensors) == 0:
@@ -275,12 +281,17 @@ def main():
         sensor_str = ", ".join(map(lambda x: "M." + x, args.sensors))
         station_str = " OR ".join(map(lambda x: "DL.datalogger_char_id='{}'".format(x), args.stations))
 
-        query = "SELECT DL.datalogger_char_id AS 'station', CONVERT_TZ(M.timecode, 'UTC', 'US/Pacific') AS 'time', "\
-                "{sensor} " \
+        if args.timezone == 'pacific':
+            time_query_str = "CONVERT_TZ(M.timecode, 'UTC', 'US/Pacific')"
+        else:
+            time_query_str = "M.timecode"
+
+        query = "SELECT DL.datalogger_char_id AS 'station', {time_query_str} AS 'time', {sensor} " \
                 "FROM weatherstations_datalogger DL " \
                 "INNER JOIN weatherstations_measurement M " \
                 "ON M.data_logger_id = DL.id " \
                 "WHERE M.timecode>='{start_dt}' AND M.timecode<'{end_dt}' AND ({stations})".format(
+            time_query_str=time_query_str,
             sensor=sensor_str,
             start_dt=args.start_time.strftime("%Y-%m-%d %H:%M:%S"),
             end_dt=args.end_time.strftime("%Y-%m-%d %H:%M:%S"),

@@ -7,12 +7,15 @@
 # IMPORTS
 # ---------------------------------------------------------------------------------------------------------------------
 
-import pymysql
-import pytz
-import sys
-
 import argparse
 import configparser
+import sys
+
+import pymysql
+import pytz
+
+sys.path.append('../lib/')
+import nwac
 
 from collections import defaultdict
 from datetime import datetime
@@ -294,6 +297,11 @@ def configure_script():
                              "specified stations.",
                         nargs="*",
                         dest="sensors")
+    parser.add_argument('--id', action='store', default="aws",
+                        help="Whether the IDs specified on the command line are Mesowest ids or AWS ids.  Default is "
+                             "AWS.",
+                        choices=['aws', 'mesowest'],
+                        dest='station_id_type')
 
     parser.add_argument('--csv', action='store_true',
                         help="Print out data as a CSV instead of a columnar format.",
@@ -306,6 +314,17 @@ def configure_script():
                         dest='print_query')
 
     args = parser.parse_args()
+
+    if args.stations is not None:
+        # If we've gotten Mesowest station IDs, convert them to AWS ids.
+        if args.station_id_type == 'mesowest':
+            new_stations = list()
+            for station in args.stations:
+                new_station = nwac.StationNameConversion.MESOWEST_TO_AWS_MAP.get(station)
+                if new_station is None:
+                    raise ValueError("Invalid station ID specified: {station}".format(station=station))
+                new_stations.append(new_station)
+            args.stations = new_stations
 
     if args.start_time is not None or args.end_time is not None:
         # Make sure we have both a start and end time if either is specified
@@ -426,6 +445,8 @@ def main():
 
         if cursor is not None:
             rp.add_column('station', 5)
+            if args.station_id_type == 'mesowest':
+                rp.add_column('mesowest_id', 7)
             rp.add_column('time', 18)
             for sensor in args.sensors:
                 rp.add_column(sensor, 25)
@@ -438,6 +459,8 @@ def main():
             if args.print_header:
                 rp.print_header()
             for ele in data:
+                if args.station_id_type == 'mesowest':
+                    ele['mesowest_id'] = nwac.StationNameConversion.convert_aws_to_mesowest(ele['station'])
                 if args.do_binning is None:
                     ele['time'] = ele['time'].strftime('%Y%m%d %H:%M:%S')
                 rp.print_datum(ele)
@@ -455,6 +478,7 @@ def main():
         if cursor is not None:
             rp.add_column('id', 3)
             rp.add_column('aws_id', 5)
+            rp.add_column('mesowest_id', 7) # value added below
             rp.add_column('datalogger_name', 45)
             rp.add_column('title', None, 'station_title')
 
@@ -463,6 +487,8 @@ def main():
             if args.print_header:
                 rp.print_header()
             for ele in data:
+                mw_id = nwac.StationNameConversion.convert_aws_to_mesowest(ele['aws_id'])
+                ele['mesowest_id'] = mw_id if mw_id is not None else '-'
                 rp.print_datum(ele)
     # We have at least one station specified but no start and end date, so we must want a list of all the sensors at
     # those stations.
@@ -482,6 +508,8 @@ def main():
 
         if cursor is not None:
             rp.add_column('station', 5)
+            if args.station_id_type == 'mesowest':
+                rp.add_column('mesowest_id', 7)
             rp.add_column('sensortype_name', 25)
             rp.add_column('field_name', 25)
 
@@ -490,6 +518,8 @@ def main():
             if args.print_header:
                 rp.print_header()
             for ele in data:
+                if args.station_id_type == 'mesowest':
+                    ele['mesowest_id'] = nwac.StationNameConversion.convert_aws_to_mesowest(ele['station'])
                 rp.print_datum(ele)
 
 

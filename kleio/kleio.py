@@ -265,14 +265,14 @@ def configure_script():
 
     # TODO change to a mode-based command line argument
     parser.add_argument('-s', action='store',
-                        help="Start time specified as 'YYYYMMDD [24 hour time].'  If '-s' is specified, '-e' "
-                             "must also be specified.  If a start and end time are specified, then we actually get "
-                             "data from the database.  Otherwise, this script will return a list what fields can be "
-                             "accessed in the database.",
+                        help="Start time specified as 'YYYYMMDD [HH:MM[:SS]]'.  If a start is specified, then we "
+                             "actually get data from the database.  Otherwise, this script will return a list what "
+                             "fields can be accessed in the database.",
                         dest='start_time')
     parser.add_argument('-e', action='store',
-                        help="End time specified as 'YYYYMMDD [24 hour time].  Data is queried up to and "
-                             "including the specified time.  See information on '-s' argument for more information.",
+                        help="End time specified as 'YYYYMMDD [HH:MM[:SS]]'.  Data is queried up to and "
+                             "including the specified time.  If a start time is specified ('-s') but this argument is"
+                             "omitted, we set the end time to the start time, e.g., a single day analysis.",
                         dest='end_time')
     parser.add_argument('--zone', action='store', default="gmt",
                         help="The timezone for which the date range is specified.  Remember, forecasts are, by default,"
@@ -326,12 +326,10 @@ def configure_script():
                 new_stations.append(new_station)
             args.stations = new_stations
 
-    if args.start_time is not None or args.end_time is not None:
-        # Make sure we have both a start and end time if either is specified
-        if args.start_time is None or args.end_time is None:
-            sys.stderr.write("If a start time ('-s') is specified, an end time must also be specified ('-e'), and "
-                             "vice versa.\n")
-            exit(1)
+    if args.start_time is not None:
+        # If the end time is not specified, we just set it to the start time.
+        if args.end_time is None:
+            args.end_time = args.start_time
 
         # Turn the strings into datetimes
         parsed_start_time = parse_dt_str(args.start_time)

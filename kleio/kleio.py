@@ -18,7 +18,7 @@ sys.path.append('../lib/')
 import nwac
 
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum, auto
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -376,11 +376,15 @@ def bin_data(bin_type, data):
     for ele in data:
         dl_id = ele["station"]
 
+        base_date = ele['time'].strftime("%Y%m%d")
+
         if bin_type == "daily":
-            time_key_format = "%Y%m%d"
+            time_key = base_date
         else:
-            time_key_format = "%Y%m%d-%p"
-        time_key = ele['time'].strftime(time_key_format)
+            if ele['time'].hour < 12:
+                time_key = base_date + "-AM"
+            else:
+                time_key = base_date + "-PM"
 
         # If we've never seen this dl_id-time_key combo, initialize our data to '0.'
         if dl_id not in out_data_map or time_key not in out_data_map[dl_id]:

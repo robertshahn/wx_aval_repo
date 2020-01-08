@@ -271,7 +271,7 @@ def configure_script():
                              "accessed in the database.",
                         dest='start_time')
     parser.add_argument('-e', action='store',
-                        help="End time specified as 'YYYYMMDD [24 hour time].  Data is queried up to but not "
+                        help="End time specified as 'YYYYMMDD [24 hour time].  Data is queried up to and "
                              "including the specified time.  See information on '-s' argument for more information.",
                         dest='end_time')
     parser.add_argument('--zone', action='store', default="gmt",
@@ -334,8 +334,23 @@ def configure_script():
             exit(1)
 
         # Turn the strings into datetimes
-        args.start_time = parse_dt_str(args.start_time)
-        args.end_time = parse_dt_str(args.end_time)
+        parsed_start_time = parse_dt_str(args.start_time)
+        parsed_end_time = parse_dt_str(args.end_time)
+
+        # If we only got dates (YYYYMMDD) on the command line, we need to push the times around to get the right data
+        # out of the database.  This is necessary because data is timestamped with the time of the end of the period
+        # for which data has been collected...
+        if len(args.start_time) == 8:
+            # ... so for the start_time, we don't want DB data for YYYYMMDD 00:00 because that would be for the previous
+            # day, so we get data from YYYYMMDD 00:00:01 ...
+            parsed_start_time = parsed_start_time + timedelta(seconds=1)
+        if len(args.end_time) == 8:
+            # ... and for the end_time, we set the end_time to (YYYYMMDD + 1) 00:00 because that will get us all the
+            # data for YYYYMMDD.
+            parsed_end_time = parsed_end_time + timedelta(days=1)
+
+        args.start_time = parsed_start_time
+        args.end_time = parsed_end_time
 
         # Convert the command line args to UTC since that's what's stored in the DB.
         if args.timezone == 'pacific':
@@ -376,12 +391,20 @@ def bin_data(bin_type, data):
     for ele in data:
         dl_id = ele["station"]
 
-        base_date = ele['time'].strftime("%Y%m%d")
+        # Binning is tricky!  Data timestamped with time X is for sensor readings from time 'X - 1 hour' up until X.
+        # Thus for daily binning for day YYYYMMDD, we take data from YYYYMMDD 01:00 to (YYYYMMDD + 1) 0:00.  We need
+        # to make a similar adjustment for AM/PM binning, taking data from [1:00, 12:00] for AM and
+        # [13:00, 0:00] for PM.
+        if ele['time'].hour == 0:
+            yesterday_dt = ele['time'] - timedelta(days=1)
+            base_date = yesterday_dt.strftime("%Y%m%d")
+        else:
+            base_date = ele['time'].strftime("%Y%m%d")
 
         if bin_type == "daily":
             time_key = base_date
         else:
-            if ele['time'].hour < 12:
+            if 1 <= ele['time'].hour <= 12:
                 time_key = base_date + "-AM"
             else:
                 time_key = base_date + "-PM"
@@ -438,7 +461,7 @@ def main():
                 "FROM weatherstations_datalogger DL " \
                 "INNER JOIN weatherstations_measurement M " \
                 "ON M.data_logger_id = DL.id " \
-                "WHERE M.timecode>='{start_dt}' AND M.timecode<'{end_dt}' AND ({stations})".format(
+                "WHERE M.timecode>='{start_dt}' AND M.timecode<='{end_dt}' AND ({stations})".format(
             time_query_str=time_query_str,
             sensor=sensor_str,
             start_dt=args.start_time.strftime("%Y-%m-%d %H:%M:%S"),

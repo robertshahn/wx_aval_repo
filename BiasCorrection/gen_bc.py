@@ -43,9 +43,6 @@ LINES_TO_PRINT_OPTIONS = {'RB', 'BB', 'BF', 'F', 'O', 'CF'}
 
 TAU = 30
 
-# TODO Robert, will the column headers always be SSSD where SSS is the station identifier and D is [1,4]?
-SUFFIXES_TO_DROP = ['2', '3']
-
 # ---------------------------------------------------------------------------------------------------------------------
 # METHODS
 # ---------------------------------------------------------------------------------------------------------------------
@@ -60,12 +57,6 @@ def read_csv_data(file_name, start_date, end_date):
     dataframe = dataframe.set_index('Date')
     dataframe = dataframe.loc[start_date:end_date]
 
-    # Figure out which columns we'll be dropping
-    cols_to_drop = []
-    for suffix in SUFFIXES_TO_DROP:
-        cols_to_drop.extend(dataframe.filter(regex="{}$".format(suffix), axis='columns').columns)
-    dataframe.drop(cols_to_drop, inplace=True, axis='columns')
-
     return dataframe
 
 
@@ -75,29 +66,23 @@ def prep_station_dataframe(dataframe, name):
     # Get a copy of the data so we can easily output it
     stat_df = dataframe.filter(regex=name).copy(deep=True)
 
-    # Rename the observation and forecast columns.
-    # Tricky!!  Do this first because any references to columns within the DataFrame will change with
-    # the call to rename().
-    obs_lbl = name + '_OBS'
-    fcst_lbl = name + '_FCST'
-    stat_df.rename(columns={name + '1': obs_lbl, name + '4': fcst_lbl}, inplace=True)
-    col_names['obs'] = obs_lbl
-    col_names['fcst'] = fcst_lbl
+    col_names['obs'] = name + '-OBS'
+    col_names['fcst'] = name + '-FCST'
 
     # Set up the extra columns we need for our math
-    cf_lbl = name + '_CF'
+    cf_lbl = name + '-CF'
     stat_df[cf_lbl] = 0.0
     col_names['cf'] = cf_lbl
 
-    bc_fcst_lbl = name + '_BC'
+    bc_fcst_lbl = name + '-BC'
     stat_df[bc_fcst_lbl] = 0.0
     col_names['bc_fcst'] = bc_fcst_lbl
 
-    raw_bias_lbl = name + '_Raw_Bias'
+    raw_bias_lbl = name + '-Raw_Bias'
     stat_df[raw_bias_lbl] = 0.0
     col_names['raw_bias'] = raw_bias_lbl
 
-    bc_bias_lbl = name + '_BC_Bias'
+    bc_bias_lbl = name + '-BC_Bias'
     stat_df[bc_bias_lbl] = 0.0
     col_names['bc_bias'] = bc_bias_lbl
 
@@ -305,6 +290,7 @@ def configure_script():
         exit(1)
 
     # Get the stations for which we'll do the analysis.
+    # TODO change this so that we just munge all data in input file.  The '-S' argument will become an optional filter.
     if len(args.stations) == 0:
         args.stations = DEFAULT_STATIONS
     else:

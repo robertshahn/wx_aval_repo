@@ -15,11 +15,11 @@ import pymysql
 import pytz
 
 sys.path.append('../lib/')
-import nwac
+import nwac  # noqa: E402
 
-from collections import defaultdict
-from datetime import datetime, timedelta
-from enum import Enum, auto
+from collections import defaultdict  # noqa: E402
+from datetime import datetime, timedelta  # noqa: E402
+from enum import Enum, auto  # noqa: E402
 
 # ---------------------------------------------------------------------------------------------------------------------
 # CONFIGURATION and INITIALIZATION
@@ -263,7 +263,6 @@ def configure_script():
     # Handle the command line arguments
     parser = argparse.ArgumentParser(description='Provides access to the NWAC database.')
 
-    # TODO change to a mode-based command line argument
     parser.add_argument('-s', action='store',
                         help="Start time specified as 'YYYYMMDD [HH:MM[:SS]]'.  If a start is specified, then we "
                              "actually get data from the database.  Otherwise, this script will return a list what "
@@ -338,11 +337,11 @@ def configure_script():
         # If we only got dates (YYYYMMDD) on the command line, we need to push the times around to get the right data
         # out of the database.  This is necessary because data is timestamped with the time of the end of the period
         # for which data has been collected...
-        if len(args.start_time) == 8:
+        if len(str(args.start_time)) == 8:
             # ... so for the start_time, we don't want DB data for YYYYMMDD 00:00 because that would be for the previous
             # day, so we get data from YYYYMMDD 00:00:01 ...
             parsed_start_time = parsed_start_time + timedelta(seconds=1)
-        if len(args.end_time) == 8:
+        if len(str(args.end_time)) == 8:
             # ... and for the end_time, we set the end_time to (YYYYMMDD + 1) 00:00 because that will get us all the
             # data for YYYYMMDD.
             parsed_end_time = parsed_end_time + timedelta(days=1)
@@ -459,12 +458,12 @@ def main():
                 "FROM weatherstations_datalogger DL " \
                 "INNER JOIN weatherstations_measurement M " \
                 "ON M.data_logger_id = DL.id " \
-                "WHERE M.timecode>='{start_dt}' AND M.timecode<='{end_dt}' AND ({stations})".format(
-            time_query_str=time_query_str,
-            sensor=sensor_str,
-            start_dt=args.start_time.strftime("%Y-%m-%d %H:%M:%S"),
-            end_dt=args.end_time.strftime("%Y-%m-%d %H:%M:%S"),
-            stations=station_str)
+                "WHERE M.timecode>='{start_dt}' AND M.timecode<='{end_dt}' AND ({stations})".\
+            format(time_query_str=time_query_str,
+                   sensor=sensor_str,
+                   start_dt=args.start_time.strftime("%Y-%m-%d %H:%M:%S"),
+                   end_dt=args.end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                   stations=station_str)
 
         cursor = process_query(dbinfo, args, query)
 
@@ -503,7 +502,7 @@ def main():
         if cursor is not None:
             rp.add_column('id', 3)
             rp.add_column('aws_id', 5)
-            rp.add_column('mesowest_id', 7) # value added below
+            rp.add_column('mesowest_id', 7)  # value injected to ele below
             rp.add_column('datalogger_name', 45)
             rp.add_column('title', None, 'station_title')
 

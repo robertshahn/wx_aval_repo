@@ -31,7 +31,7 @@ plt.close("all")
 
 # Global Constants
 # TODO Useful for testing, but perhaps remove this for prod.
-DEFAULT_CSV_NAME = 'BiasCorrectionData.csv'
+DEFAULT_CSV_NAME = 'bc_data_2018-2019.csv'
 
 DEFAULT_START_DATE = 20181211
 DEFAULT_END_DATE = 20190430

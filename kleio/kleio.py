@@ -474,7 +474,7 @@ def main():
                 rp.add_column('mesowest_id', 7)
             rp.add_column('time', 18)
             for sensor in args.sensors:
-                rp.add_column(sensor, 25)
+                rp.add_column(sensor, 5)
 
             data = list(cursor.fetchall())
             if args.do_binning is not None:

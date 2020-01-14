@@ -9,12 +9,16 @@
 
 import argparse
 import configparser
+import inspect
+import os
 import sys
 
 import pymysql
 import pytz
 
-sys.path.append('../lib/')
+#todo There's gotta be a better way to do this.
+SCRIPT_DIR = "/".join(os.path.abspath(inspect.getsourcefile(lambda:0)).split("/")[:-1])
+sys.path.append("/".join(SCRIPT_DIR.split("/")[:-1]) + '/lib/')
 import nwac  # noqa: E402
 
 from collections import defaultdict  # noqa: E402
@@ -254,7 +258,7 @@ def parse_dt_str(dt_str):
 def configure_script():
     # Read in the config file
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config.read(SCRIPT_DIR + '/config.ini')
     dbinfo = DBInfo(config['DEFAULT']['DB_HOSTNAME'],
                     config['DEFAULT']['DB_USERNAME'],
                     config['DEFAULT']['DB_PASSWORD'],

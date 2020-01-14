@@ -285,8 +285,9 @@ def configure_script():
 
     parser.add_argument('-L', action='store',
                         help="Space-separated list of stations for which to get data.  Stations are specified via "
-                             "their <char id>.  If no stations are given or this argument is omitted, the script will "
-                             "return a list of all dataloggers.",
+                             "their AWS ID or Mesowest ID.  See '--id' documentation for more information.  If no "
+                             "stations are given or this argument is omitted, the script will return a list of all "
+                             "dataloggers.",
                         nargs="*",
                         dest='stations')
     parser.add_argument('-S', action='store',

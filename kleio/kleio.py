@@ -167,6 +167,7 @@ class BinningOp:
 
     @staticmethod
     def mix_in_value(old_value, key, cur_value):
+        #todo this doens't handle NULL values well if we're doing any math
 
         if key not in BinningOp.FIELD_MAP.keys():
             raise ValueError("Trying to bin a key for which an action has not been defined: {key}".format(
@@ -287,6 +288,7 @@ def configure_script():
                         choices=['daily', 'ampm'],
                         dest='do_binning')
 
+    #todo 'TUM' and 'ST9' are not unique AWS IDs.  This causes issues where querying...
     parser.add_argument('-L', action='store',
                         help="Space-separated list of stations for which to get data.  Stations are specified via "
                              "their AWS ID or Mesowest ID.  See '--id' documentation for more information.  If no "

@@ -90,6 +90,7 @@ class ResultPrinter:
 
         if datum is None:
             datum = "NaN"
+
         return format_str.format(datum)
 
     @staticmethod
@@ -372,6 +373,11 @@ def configure_script():
             # other arguments
             args.start_time = None
             args.end_time = None
+
+    # The SQL database is case insensitive, so convert all the input sensor arguments to lower case.
+    # todo Should we do this for other fields as well?
+    if len(args.sensors) > 0:
+        args.sensors = list(map(lambda x: x.lower(), args.sensors))
 
     if (args.print_csv or args.print_header) and args.print_query:
         sys.stderr.write("You provided command line arguments that specify both printing the mySQL query and "

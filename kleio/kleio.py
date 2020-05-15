@@ -87,6 +87,9 @@ class ResultPrinter:
             format_str = "{:<s}"
         else:
             format_str = "{:<" + "{:d}".format(col.width) + "} "
+
+        if datum is None:
+            datum = "NaN"
         return format_str.format(datum)
 
     @staticmethod
